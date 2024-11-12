@@ -1,0 +1,13 @@
+GameBoard:
+
+    2D Array
+    Dynamically Sized and Allocated in C with malloc
+    Has perimeter of | and - characters on vertical and horizontal sides respectively that kill the snake
+
+Food:
+
+    Spawns in a random location on the game board
+    Does not spawn in walls
+    Does not spawn in snake
+
+
