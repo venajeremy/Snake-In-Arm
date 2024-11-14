@@ -187,6 +187,7 @@ int main(){
     return 0;
 
     // trying to see if this is pushing code 
-    // it seems like its working lol 
-
+    // it seems like its working lol t
+    // well lets see if we can push from the command line 
+    //
 }
