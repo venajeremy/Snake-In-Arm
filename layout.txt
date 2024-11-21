@@ -2,16 +2,56 @@ GameBoard:
 
     2D Array
     Dynamically Sized and Allocated in C with malloc
-    Has perimeter of | and - characters on vertical and horizontal sides respectively that kill the snake
+    Has perimeter of ? and ? characters on vertical and horizontal sides respectively that kill the snake
 
 Food:
 
-    Spawns in a random location on the game board
+    Spawns in a random position on the game board
     Does not spawn in walls
     Does not spawn in snake
     
-    Choosing a spawn location:
+    Choosing a spawn position:
         Two arrays each with a size of width*height
-        One key array and one hand array
+        Each element in both arrays correspond to a specific position on the gameboard
+        One array called key
+        One array called hand
+
+        * location - refers to index in array
+        * position - refers to slot on the game board
+
+        Hand: 
+        Used find a valid position to place food (aka. not on top of the snake)
+        Key: used to bind each position to its location in the hand
+
+        Hand Methodology:
+        The last snakeSize elements of the hand are all the positions the snake is at
+        Therefor to place a food at a valid position choose a location from 0 to Width*Height - snakesize
+
+        Example:
+        All characters represent different board positions:
+
+        Snake Size=3
+                          |-----|
+Hand[]: a, c, d, e, g, f, h, i, b
+
+        Because snake size is 3 the last 3 characters (h, i, b) represent the 3 positions the snake is it
+
+        If we had to place a new food use one of the 0 to 5 positions
+
+        Key:
+        The key array marks the index each position is at in the hand
+        For this example our key would be
+
+        a , b , c , d , e , f , g , h , i
+Key[]:  0 , 8 , 1 , 2 , 3 , 5 , 4 , 6 , 7
 
 
+    The swapKeyValues function (hopefully) handles swapping the indicies of the positions in the key and hand array
+        When the new head is placed on a food its location is swapped with Width*Height-snakesize-1
+        When the new head is not placed on a food its location is swapped with the location of the old tail
+
+Snake: 
+    Build with a simple queue.
+    Every game frame the snake moves
+        If the snake moves into a position that there is no food dequeue the tail of the snake and enqueue its new head
+        If the snake moves into a position that there is a food do not dequeue the tail of the snake and still enqueue its new head
