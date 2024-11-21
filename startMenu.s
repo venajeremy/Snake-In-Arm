@@ -15,7 +15,7 @@ main:
     
 next:
     //printReg 20
-    bl getInput
+    bl getInputSize
     cbz x0, zero
     cmp x0, #1
     b.eq one
@@ -28,18 +28,18 @@ zero:
     mov x20, x0
     bl setHeight
     mov x21, x0
-    
+    //bl start
+    mov x0, #90
+    bl addLeaderboard
     b next
 one:
     //printStr "2: \n"
-    bl leaderBoard
+    bl displayLeaderboard
     b next
 two:
     //printStr "2: \n"
     b exit
     
-leaderBoard:
-    ret
 
 exit:
     printStr "Exiting..."
