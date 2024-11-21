@@ -138,17 +138,25 @@ int main(){
         head=moveHead;
 
         // If eating
-        if(map[head->ypos][head->xpos]=='@'){
+        if(map[head->ypos][head->xpos]=='@'){ 
             // Dont remove tail
             map[head->ypos][head->xpos] = '#';
             placeFood(width, height, map);
-        } else {
+        }     
+        else {
             // Remove
             map[head->ypos][head->xpos] = '#';
             map[tail->ypos][tail->xpos] = ' ';
             tail=tail->forward;
             free(tail->backward);   // Free tail memory
             tail->backward=NULL;
+        }
+
+        if(map[head->ypos][head->xpos] == '|'){ // If border hit, exit    
+            running = false;
+        }
+        if(map[head->ypos][head->xpos] == '-'){
+            running = false;
         }
 
         printBoard(width, height, map);
