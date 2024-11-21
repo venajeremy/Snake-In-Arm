@@ -9,5 +9,9 @@ Food:
     Spawns in a random location on the game board
     Does not spawn in walls
     Does not spawn in snake
+    
+    Choosing a spawn location:
+        Two arrays each with a size of width*height
+        One key array and one hand array
 
 
