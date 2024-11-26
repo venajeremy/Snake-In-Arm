@@ -2,10 +2,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ncurses.h>
-#include <unistd.h>  // For sleep()
-#include <termios.h> // For terminal control
-#include <fcntl.h>   // For fcntl() and O_NONBLOCK
+#include <conio.h>
 
 #define MAX_NAME_LENGTH 50
 #define MAX_PLAYERS 10
@@ -22,14 +19,10 @@ int compare(const void *a, const void *b) {
 int32_t input ()
 {
     int32_t a;
-    printf("Enter a Number to Exit = [ ]\b\b");
-    scanf(" %d", &a);
+    char b[90];
+    printf("Enter Anything to Exit = ");
+    scanf(" %s", b);
     printf("\033[1A\033[2K"); // Move cursor up one line, then clear the line
-    if ( a > 100 ) 
-    {
-        printf("Invalid input\n");
-        input ();
-    }
     return a;
 }
 
@@ -129,49 +122,57 @@ void displayLeaderboard() {
 
 int32_t getInputSize () 
 {
-    int32_t a = -1;
+    int32_t result = -1;
+    char a[20];
+    char one[20] = "1";
+    char two[20] = "2";
+    char zero[20] = "0";
     printf("-------------------------\n    0: [START]        \n    1: [LEADERBOARD]     \n    2: [EXIT]    \n-------------------------\n");
     printf("Input = [ ]\b\b");
-    int result = scanf(" %d", &a);
-    if (a > 2 || a < 0 || result != 1) 
+    scanf(" %s", a);
+    //printf("%s", a);
+    if (strcmp(a, zero) == 0 || strcmp(a, one) == 0 || strcmp(a, two) == 0) 
     {
-        printf("Invalid input\n");
+        result = atoi(a);
     }
     for (int i = 0; i < 6; i++) {
         printf("\033[1A\033[2K"); // Move cursor up one line, then clear the line
     }
-    return a;
+    return result;
 }
 
-int32_t setWidth ()
+int64_t setWidth ()
 {
-    int32_t a;
+    int64_t result;
+    char a[20];
     printf("Width = ");
-    scanf(" %d", &a);
-    
-    if ( a > 100 || a < 1 ) 
+    scanf(" %s", a);
+    result = atoi(a);
+    if ( result > 100 || result < 1 ) 
     {
         printf("\033[1A\033[2K"); // Move cursor up one line, then clear the line
         setWidth ();
     }
-    return a;
+    return result;
 }
 
-int32_t setHeight ()
+int64_t setHeight ()
 {
-    int32_t a;
+    int64_t result;
+    char a[20];
     printf("Height = ");
-    scanf(" %d", &a);
-    
-    if ( a > 100 || a < 1 )  
+    scanf(" %s", a);
+    result = atoi(a);
+    if ( result > 100 || result < 1 )  
     {
         printf("\033[1A\033[2K"); // Move cursor up one line, then clear the line
-        setHeight ();
+        //printf("ping");
+        return -1;
     }
         printf("\033[1A\033[2K"); // Move cursor up one line, then clear the line
         printf("\033[1A\033[2K");
 
-    return a;
+    return result;
     
 }
 

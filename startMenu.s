@@ -15,25 +15,31 @@ main:
     
 next:
     //printReg 20
+    mov x0, #-1
     bl getInputSize
     cbz x0, zero
     cmp x0, #1
     b.eq one
     cmp x0, #2
     b.eq two
+    //printReg 0
     b next
 zero:
     //printStr "0: \n"
     bl setWidth
     mov x20, x0
+back:
     bl setHeight
+    //printReg 0
+    cmp x0, #-1
+    b.eq back
     mov x21, x0
     //bl start
     mov x0, #90
     bl addLeaderboard
     b next
 one:
-    //printStr "2: \n"
+    //printStr "1: \n"
     bl displayLeaderboard
     b next
 two:
