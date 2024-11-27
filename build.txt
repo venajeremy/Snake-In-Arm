@@ -1,11 +1,23 @@
 To Build codeModel.c
     gcc codeModel.c -lncurses
 
-To Build Cross Compilation
-    aarch64-linux-gnu-gcc -c assembly.s -o assembly.o    // Assemble
-    aarch64-linux-gnu-gcc -c code.c -o code.o    // Compile
-    aarch64-linux-gnu-gcc -o myprogram assembly.o code.o    // Cross Compile 
+How to Compile Ncurses Libraries In Arm
 
-    
-                    VVVVVVVVVVVVVVVVVVVVVVVVV will be different for you
-    LD_LIBRARY_PATH=/usr/aarch64-linux-gnu/lib qemu-aarch64 ./myprogram // Run With Libraries
+wget https://ftp.gnu.org/gnu/ncurses/ncurses-6.4.tar.gz
+tar -xvzf ncurses-6.4.tar.gz
+cd ncurses-6.4 
+
+./configure --host=aarch64-linux-gnu --prefix=/path/to/cross-toolchain/aarch64-linux-gnu --with-shared --with-termlib --disable-stripping
+
+make
+make install
+
+Cross compiling with all libraries:
+
+aarch64-linux-gnu-gcc -c input.(s/c) -o output.o -I/usr/aarch64-linux-gnu/include/ncurses -L/usr/aarch64-linux-gnu/lib
+
+aarch64-linux-gnu-gcc -o myprogram assembly.o code.o code1.o -I/usr/aarch64-linux-gnu/include/ncurses -L/usr/aarch64-linux-gnu/lib -lncurses -ltinfo
+
+Running Project:
+
+LD_LIBRARY_PATH=/usr/aarch64-linux-gnu/lib qemu-aarch64 ./myprogram // Run With Libraries

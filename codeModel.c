@@ -4,6 +4,11 @@
 #include <unistd.h>
 #include <time.h>
 
+void helloWorld(){
+    printf("HelloWorld\n");
+    return;
+}
+
 int getInput(){
     int input = getch();
     while(getch()!=ERR){
