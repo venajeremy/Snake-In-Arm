@@ -59,16 +59,13 @@ typedef struct snakeP{
     struct snakeP *backward;
 } snakePart;
 
-void startGame(){
+void startGame(int height, int width){
 
     initscr(); // Initialize ncurses
     timeout(0);
     srand(time(NULL));  // Initialize random number generator
 
     // ---------------------------- Initialize Map ---------------------------- // 
-
-    const int height = 20;  // must be greater than or 6 to fit snake
-    const int width = 20;   // must be greater than or 6 to fit snake
 
     char **map = (char**) malloc(sizeof(char*) * height);   // Allocate rows of 2d Array
 
@@ -77,6 +74,18 @@ void startGame(){
         for(int j = 0 ; j < width ;  j++){
             map[i][j] = ' ';                                // Initialize values of 2d Array
         }   
+    }
+
+    // Place Boarder
+
+    for(int i = 0 ; i < width ; i++){
+        map[0][i]='-';
+        map[height-1][i]='-';
+    }
+    
+    for(int i = 0 ; i < height ; i++){
+        map[i][0]='|';
+        map[i][width-1]='|';
     }
 
     // ------------------ Initialize Components for Placeing Food ------------------- // 

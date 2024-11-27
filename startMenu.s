@@ -33,6 +33,8 @@ back:
     cmp x0, #-1
     b.eq back
     mov x21, x0
+    mov x0, x20
+    mov x1, x21
     bl startGame
     mov x0, #90
     bl addLeaderboard
