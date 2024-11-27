@@ -1,2 +1,11 @@
 To Build codeModel.c
     gcc codeModel.c -lncurses
+
+To Build Cross Compilation
+    aarch64-linux-gnu-gcc -c assembly.s -o assembly.o    // Assemble
+    aarch64-linux-gnu-gcc -c code.c -o code.o    // Compile
+    aarch64-linux-gnu-gcc -o myprogram assembly.o code.o    // Cross Compile 
+
+    
+                    VVVVVVVVVVVVVVVVVVVVVVVVV will be different for you
+    LD_LIBRARY_PATH=/usr/aarch64-linux-gnu/lib qemu-aarch64 ./myprogram // Run With Libraries

@@ -15,8 +15,9 @@ void printBoard(int boardWidth, int boardHeight, char **graph){
 
     for(int i = 0 ; i < boardHeight ; i++){
         for(int j = 0 ; j < boardWidth ; j++){
-            printf("%c", graph[i][j]);
+            printf(" %c", graph[i][j]);
         }
+        printf("\n\r");
         printf("\n\r");
     }
 
@@ -53,7 +54,7 @@ typedef struct snakeP{
     struct snakeP *backward;
 } snakePart;
 
-int main(){
+void startGame(){
 
     initscr(); // Initialize ncurses
     timeout(0);
@@ -61,8 +62,8 @@ int main(){
 
     // ---------------------------- Initialize Map ---------------------------- // 
 
-    const int height = 5;  // must be greater than or 6 to fit snake
-    const int width = 5;   // must be greater than or 6 to fit snake
+    const int height = 20;  // must be greater than or 6 to fit snake
+    const int width = 20;   // must be greater than or 6 to fit snake
 
     char **map = (char**) malloc(sizeof(char*) * height);   // Allocate rows of 2d Array
 
@@ -183,7 +184,7 @@ int main(){
             
             // Swap new head with length-snakeSize
             int pos1 = (head->ypos*width) + head->xpos;
-            int pos2 = hand[(width*height)-1-snakeSize];
+            int pos2 = hand[(width*height)-snakeSize];
             swapKeyValues(key, hand, pos1, pos2);
             snakeSize++;
 
@@ -239,11 +240,5 @@ int main(){
     // Delete key and hand
     free(key);
     free(hand);
-    
-    
-    
 
-
-
-    return 0;
 }
