@@ -61,6 +61,8 @@ typedef struct snakeP{
 
 void startGame(int height, int width){
 
+    printf("Loading Game...\n");
+
     initscr(); // Initialize ncurses
     timeout(0);
     srand(time(NULL));  // Initialize random number generator
