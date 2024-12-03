@@ -13,7 +13,7 @@ build:
 	@echo "Assembling..."
 	@$(CC) $(CurseFLAGS) -c ./src/startMenu.s -o ./tmp/startMenuS.o
 	@echo "Linking..."
-	@$(CC) -lncurses -ltinfo ./tmp/*.o -o ./dist/myprogram
+	$(CC) $(CurseFLAGS) ./tmp/*.o -o ./dist/myprogram -lncurses -ltinfo
 	@echo "Done! Output in /dist/. Run with: make run"
 
 buildNoCurses:
