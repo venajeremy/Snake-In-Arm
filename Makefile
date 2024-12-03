@@ -1,19 +1,31 @@
 CC = aarch64-linux-gnu-gcc
-CFLAGS = -I/usr/aarch64-linux-gnu/include/ncurses -L/usr/aarch64-linux-gnu/lib
+CurseFLAGS = -I/usr/aarch64-linux-gnu/include/ncurses -L/usr/aarch64-linux-gnu/lib
 
 intro:
 	@echo "Build project with: make build"
+	@echo "Build project without ncurses: make buildNoCurses"
 	@echo "Run Project with: make run"
 
 build:
 	@echo "Compiling..."
-	@$(CC) $(CFLAGS) -c ./src/codeModel.c -o ./tmp/codeModel.o 
-	@$(CC) $(CFLAGS) -c ./src/startMenu.c -o ./tmp/startMenu.o	
+	@$(CC) $(CurseFLAGS) -c ./src/codeModel.c -o ./tmp/codeModel.o 
+	@$(CC) $(CurseFLAGS) -c ./src/startMenu.c -o ./tmp/startMenu.o	
 	@echo "Assembling..."
-	@$(CC) $(CFLAGS) -c ./src/startMenu.s -o ./tmp/startMenuS.o
+	@$(CC) $(CurseFLAGS) -c ./src/startMenu.s -o ./tmp/startMenuS.o
 	@echo "Linking..."
 	@$(CC) -lncurses -ltinfo ./tmp/*.o -o ./dist/myprogram
 	@echo "Done! Output in /dist/. Run with: make run"
+
+buildNoCurses:
+	@echo "Compiling..."
+	@$(CC) -c ./src/codeModel.c -o ./tmp/codeModel.o 
+	@$(CC) -c ./src/startMenu.c -o ./tmp/startMenu.o	
+	@echo "Assembling..."
+	@$(CC) -c ./src/startMenu.s -o ./tmp/startMenuS.o
+	@echo "Linking..."
+	@$(CC)  ./tmp/*.o -o ./dist/myprogram
+	@echo "Done! Output in /dist/. Run with: make run"
+
 
 run:
 	@echo "Running"

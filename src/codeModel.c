@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <ncurses.h>
+//#include <ncurses.h> uncomment for ncurses
 #include <unistd.h>
 #include <time.h>
 
@@ -10,10 +10,17 @@ void helloWorld(){
 }
 
 int getInput(){
+    int input;
+    scanf("%c`",&input);
+    while(getchar() != '\n');
+    return input;
+
+    /* uncomment for ncurses
     int input = getch();
     while(getch()!=ERR){
     }
     return input;
+    */
 }
 
 void printBoard(int boardWidth, int boardHeight, char **graph){
@@ -63,8 +70,8 @@ void startGame(int height, int width){
 
     printf("Loading Game...\n");
 
-    initscr(); // Initialize ncurses
-    timeout(0);
+    //initscr(); // Initialize ncurses // uncomment for ncurses
+    //timeout(0); // uncomment for ncurses
     srand(time(NULL));  // Initialize random number generator
 
     // ---------------------------- Initialize Map ---------------------------- // 
@@ -148,14 +155,16 @@ void startGame(int height, int width){
     int currentDirection='d';   // Store current input
 
     // Game loop
-    bool running=true;
+    char running=1;
 
     // Start Game Loop
-    while(running){
+    while(running==1){
 
         // Clear previous board
+        /* uncomment for ncurses (delete above clear method)
         clear(); 
         refresh();
+        */
         
 
         // Create new Head
@@ -168,10 +177,19 @@ void startGame(int height, int width){
         // Get input
         ch = getInput();
 
-        // No input entered
-        if(ch!=ERR){
+        system("clear");    // delete if using ncurses
+
+        printf("%d, %d",ch, 'q');
+
+        // No input entered check
+        if(ch=='a'||ch=='d'||ch=='w'||ch=='s'||ch=='q'){
             currentDirection = ch;
         }
+        /* uncomment for ncurses and delete above
+        if(ch!=ERR){
+        currentDirection = ch;
+        }
+        */
 
         // Move in inputed direction
         if(currentDirection=='a'){
@@ -189,7 +207,7 @@ void startGame(int height, int width){
         
         // Quit game if q is pressed
         if(currentDirection=='q'){
-            running=false;
+            running=0;
         }
  
         // Set the heap of the linked list to the new head we allocated
@@ -234,7 +252,7 @@ void startGame(int height, int width){
     // ---------------------------- Cleanup ----------------------------- //
     
 
-    endwin(); // Clean up ncurses
+    //endwin(); // Clean up ncurses // uncomment for ncurses
 
     
     // Delete snake
