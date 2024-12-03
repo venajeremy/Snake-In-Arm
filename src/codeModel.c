@@ -4,14 +4,21 @@
 #include <unistd.h>
 #include <time.h>
 
-void helloWorld(){
-    printf("HelloWorld\n");
-    return;
+typedef struct snakeP{ 
+    int xpos;
+    int ypos;
+    struct snakeP *forward;
+    struct snakeP *backward;
+} snakePart;
+
+snakePart* createNewHead(){
+    return (snakePart*) malloc(sizeof(snakePart));
 }
 
+// Stay in C
 int getInput(){
     int input;
-    scanf("%c`",&input);
+    input = getchar();
     while(getchar() != '\n');
     return input;
 
@@ -23,6 +30,7 @@ int getInput(){
     */
 }
 
+// Stay in C
 void printBoard(int boardWidth, int boardHeight, char **graph){
 
     for(int i = 0 ; i < boardHeight ; i++){
@@ -35,10 +43,15 @@ void printBoard(int boardWidth, int boardHeight, char **graph){
 
 }
 
+int getRand(){
+    return rand();
+}
+
+// Assembly
 void placeFood(int boardWidth, int boardHeight, char **graph, int *key, int *hand, int snakeSize){
 
     // Get a valid position to place our food ( -snakeSize are all the positions of the snake )
-    int position = rand() % ((boardWidth * boardHeight)-snakeSize);
+    int position = getRand() % ((boardWidth * boardHeight)-snakeSize);
 
     // Get y and x position from position
     int y = hand[position] / boardWidth;
@@ -49,6 +62,7 @@ void placeFood(int boardWidth, int boardHeight, char **graph, int *key, int *han
     return;
 }
 
+// Assembly
 void swapKeyValues(int *key, int *hand, int pos1, int pos2){
    int location1 = key[pos1];
    int location2 = key[pos2];
@@ -59,12 +73,76 @@ void swapKeyValues(int *key, int *hand, int pos1, int pos2){
    return;
 }
 
-typedef struct snakeP{ 
-    int xpos;
-    int ypos;
-    struct snakeP *forward;
-    struct snakeP *backward;
-} snakePart;
+// Stay in C
+void initializeMap(char ***map, int height, int width){
+
+    *map = (char**) malloc(sizeof(char*) * height);   // Allocate rows of 2d Array
+
+    for(int i = 0 ; i < height ;  i++){
+        (*map)[i] = (char*) malloc(sizeof(char) * width);      // Allocate all columns of 2d Array
+        for(int j = 0 ; j < width ;  j++){
+            (*map)[i][j] = ' ';                                // Initialize values of 2d Array
+        }   
+    }
+
+}
+
+// Assembly
+void placeBoarder(char ***map, int height, int width){
+    for(int i = 0 ; i < width ; i++){
+        (*map)[0][i]='-';
+        (*map)[height-1][i]='-';
+    }
+    
+    for(int i = 0 ; i < height ; i++){
+        (*map)[i][0]='|';
+        (*map)[i][width-1]='|';
+    }
+}
+
+// Stay in C
+void initializeKeyAndHand(int **key, int **hand, int width, int height){
+    // Initialize arrays for placing food
+    (*key) = (int*) malloc(sizeof(int) * width * height);     // Used to hold the location of a food position in the hand
+
+    (*hand) = (int*) malloc(sizeof(int) * width * height);    // Used to hold food positions avaiable to pick randomly
+    
+    // Initialize every food position at its index
+    for(int i = 0 ; i < width*height ; i++){
+        (*key)[i] = i;
+        (*hand)[i] = i;
+    }
+}
+
+// Assembly
+void cleanUp(snakePart **head, char ***map, int height, int **hand, int **key){ 
+
+    //endwin(); // Clean up ncurses // uncomment for ncurses
+    
+    // Delete snake
+    snakePart *tempPart=*head;
+    snakePart *next=tempPart->backward;
+    while(next!=NULL){
+        free(tempPart);
+        tempPart=next;
+        next=next->backward;
+    }
+    free(tempPart);
+
+    // Delete map
+    for(int i = 0 ; i < height ; i++){
+        free((*map)[i]);
+    }
+    free(*map);
+
+    // Delete key and hand
+    free(*key);
+    free(*hand);
+
+    printf("\n");
+
+    return;
+}
 
 void startGame(int height, int width){
 
@@ -74,41 +152,17 @@ void startGame(int height, int width){
     //timeout(0); // uncomment for ncurses
     srand(time(NULL));  // Initialize random number generator
 
-    // ---------------------------- Initialize Map ---------------------------- // 
 
-    char **map = (char**) malloc(sizeof(char*) * height);   // Allocate rows of 2d Array
-
-    for(int i = 0 ; i < height ;  i++){
-        map[i] = (char*) malloc(sizeof(char) * width);      // Allocate all columns of 2d Array
-        for(int j = 0 ; j < width ;  j++){
-            map[i][j] = ' ';                                // Initialize values of 2d Array
-        }   
-    }
-
-    // Place Boarder
-
-    for(int i = 0 ; i < width ; i++){
-        map[0][i]='-';
-        map[height-1][i]='-';
-    }
-    
-    for(int i = 0 ; i < height ; i++){
-        map[i][0]='|';
-        map[i][width-1]='|';
-    }
+    // ------------------ Initialize The Map ------------------- // 
+    char **map = NULL;
+    initializeMap(&map, height, width);  // initializeMap makes map point to a 2d array allocated with sizes height and width
+    placeBoarder(&map, height, width); // place the boarder around the map
 
     // ------------------ Initialize Components for Placeing Food ------------------- // 
 
-    // Initialize arrays for placing food
-    int *key = (int*) malloc(sizeof(int) * width * height);     // Used to hold the location of a food position in the hand
-
-    int *hand = (int*) malloc(sizeof(int) * width * height);    // Used to hold food positions avaiable to pick randomly
-
-    // Initialize every food position at its index
-    for(int i = 0 ; i < width*height ; i++){
-        key[i] = i;
-        hand[i] = i;
-    }
+    int *key = NULL;
+    int *hand = NULL;
+    initializeKeyAndHand(&key, &hand, width, height);
 
     // ---------------------- Initialize Snake ----------------------- //
 
@@ -116,9 +170,9 @@ void startGame(int height, int width){
 
     int snakeSize=0;
 
-    snakePart *head = (snakePart*) malloc(sizeof(snakePart));
-    snakePart *body = (snakePart*) malloc(sizeof(snakePart));
-    snakePart *tail = (snakePart*) malloc(sizeof(snakePart));
+    snakePart *tail = createNewHead();
+    snakePart *head = createNewHead();
+    snakePart *body = createNewHead();
 
     // Initialize head
     head->xpos = width/2;
@@ -168,7 +222,7 @@ void startGame(int height, int width){
         
 
         // Create new Head
-        moveHead = (snakePart*) malloc(sizeof(snakePart));
+        moveHead = createNewHead();
         head->forward=moveHead;
         moveHead->backward=head;
         moveHead->xpos=head->xpos;
@@ -178,8 +232,6 @@ void startGame(int height, int width){
         ch = getInput();
 
         system("clear");    // delete if using ncurses
-
-        printf("%d, %d",ch, 'q');
 
         // No input entered check
         if(ch=='a'||ch=='d'||ch=='w'||ch=='s'||ch=='q'){
@@ -251,28 +303,6 @@ void startGame(int height, int width){
 
     // ---------------------------- Cleanup ----------------------------- //
     
-
-    //endwin(); // Clean up ncurses // uncomment for ncurses
-
-    
-    // Delete snake
-    tempPart=head;
-    snakePart *next=head->backward;
-    while(next!=NULL){
-        free(tempPart);
-        tempPart=next;
-        next=next->backward;
-    }
-    free(tempPart);
-
-    // Delete map
-    for(int i = 0 ; i < height ; i++){
-        free(map[i]);
-    }
-    free(map);
-
-    // Delete key and hand
-    free(key);
-    free(hand);
+    cleanUp(&head, &map, height, &hand, &key);
 
 }
