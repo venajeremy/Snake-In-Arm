@@ -32,13 +32,21 @@ int getInput(){
 
 // Stay in C
 void printBoard(int boardWidth, int boardHeight, char **graph){
-
+    for(int i = 0 ; i < boardWidth ; i++){
+        printf(" o");
+    }
+    printf("\n");
     for(int i = 0 ; i < boardHeight ; i++){
+        printf("o");
         for(int j = 0 ; j < boardWidth ; j++){
             printf(" %c", graph[i][j]);
         }
+        printf("o");
         printf("\n\r");
-        printf("\n\r");
+        //printf("\n\r");
+    }
+    for(int i = 0 ; i < boardWidth ; i++){
+        printf(" o");
     }
 
 }
@@ -85,19 +93,6 @@ void initializeMap(char ***map, int height, int width){
         }   
     }
 
-}
-
-// Assembly
-void placeBoarder(char ***map, int height, int width){
-    for(int i = 0 ; i < width ; i++){
-        (*map)[0][i]='-';
-        (*map)[height-1][i]='-';
-    }
-    
-    for(int i = 0 ; i < height ; i++){
-        (*map)[i][0]='|';
-        (*map)[i][width-1]='|';
-    }
 }
 
 // Stay in C
@@ -156,7 +151,6 @@ void startGame(int height, int width){
     // ------------------ Initialize The Map ------------------- // 
     char **map = NULL;
     initializeMap(&map, height, width);  // initializeMap makes map point to a 2d array allocated with sizes height and width
-    placeBoarder(&map, height, width); // place the boarder around the map
 
     // ------------------ Initialize Components for Placeing Food ------------------- // 
 
