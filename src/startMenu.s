@@ -36,7 +36,6 @@ back:
     mov x0, x20
     mov x1, x21
     bl startGame
-    mov x0, #90
     bl addLeaderboard
     b next
 one:

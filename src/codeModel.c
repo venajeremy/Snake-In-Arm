@@ -11,8 +11,25 @@ typedef struct snakeP{
     struct snakeP *backward;
 } snakePart;
 
-snakePart* createNewHead(){
-    return (snakePart*) malloc(sizeof(snakePart));
+snakePart* createSnakePart(){
+    snakePart* newSnakePart = (snakePart*) malloc(sizeof(snakePart));
+    newSnakePart->xpos = 0;
+    newSnakePart->ypos = 0;
+    newSnakePart->forward = NULL;
+    newSnakePart->backward = NULL;
+    return newSnakePart;
+}
+
+char deathCheck(int xpos, int ypos, int width, int height, char snakeChar, char **map){
+
+    if( xpos < 0 || xpos > width-1 || ypos < 0 || ypos > height-1 ){
+        return 1;
+    } else if( map[ypos][xpos] == snakeChar ){
+        return 1;
+    } else {
+        return 0;
+    }
+
 }
 
 // Stay in C
@@ -31,7 +48,7 @@ int getInput(){
 }
 
 // Stay in C
-void printBoard(int boardWidth, int boardHeight, char **graph){
+void printBoard(int boardWidth, int boardHeight, char **map){
     for(int i = 0 ; i < boardWidth ; i++){
         printf(" o");
     }
@@ -39,15 +56,15 @@ void printBoard(int boardWidth, int boardHeight, char **graph){
     for(int i = 0 ; i < boardHeight ; i++){
         printf("o");
         for(int j = 0 ; j < boardWidth ; j++){
-            printf(" %c", graph[i][j]);
+            printf(" %c", map[i][j]);
         }
         printf("o");
         printf("\n\r");
-        //printf("\n\r");
     }
     for(int i = 0 ; i < boardWidth ; i++){
         printf(" o");
     }
+    printf("\n");
 
 }
 
@@ -56,7 +73,7 @@ int getRand(){
 }
 
 // Assembly
-void placeFood(int boardWidth, int boardHeight, char **graph, int *key, int *hand, int snakeSize){
+void placeFood(int boardWidth, int boardHeight, char foodChar, char **graph, int *key, int *hand, int snakeSize){
 
     // Get a valid position to place our food ( -snakeSize are all the positions of the snake )
     int position = getRand() % ((boardWidth * boardHeight)-snakeSize);
@@ -65,7 +82,7 @@ void placeFood(int boardWidth, int boardHeight, char **graph, int *key, int *han
     int y = hand[position] / boardWidth;
     int x = hand[position] % boardWidth;
 
-    graph[y][x]='@';
+    graph[y][x]=foodChar;
     
     return;
 }
@@ -80,6 +97,8 @@ void swapKeyValues(int *key, int *hand, int pos1, int pos2){
    key[pos2] = location1;
    return;
 }
+
+
 
 // Stay in C
 void initializeMap(char ***map, int height, int width){
@@ -115,14 +134,14 @@ void cleanUp(snakePart **head, char ***map, int height, int **hand, int **key){
     //endwin(); // Clean up ncurses // uncomment for ncurses
     
     // Delete snake
-    snakePart *tempPart=*head;
-    snakePart *next=tempPart->backward;
-    while(next!=NULL){
+    snakePart *tempPart = *head;
+    snakePart *next = tempPart;
+    while (next != NULL) {
+        next = next->backward;
         free(tempPart);
-        tempPart=next;
-        next=next->backward;
+        tempPart = next;
     }
-    free(tempPart);
+
 
     // Delete map
     for(int i = 0 ; i < height ; i++){
@@ -134,19 +153,17 @@ void cleanUp(snakePart **head, char ***map, int height, int **hand, int **key){
     free(*key);
     free(*hand);
 
-    printf("\n");
-
     return;
 }
 
-void startGame(int height, int width){
+int startGame(int height, int width){
 
     printf("Loading Game...\n");
+    
 
     //initscr(); // Initialize ncurses // uncomment for ncurses
     //timeout(0); // uncomment for ncurses
     srand(time(NULL));  // Initialize random number generator
-
 
     // ------------------ Initialize The Map ------------------- // 
     char **map = NULL;
@@ -163,10 +180,12 @@ void startGame(int height, int width){
     // Right now there is a hardcoded snake start size of 3
 
     int snakeSize=0;
+    char snakeChar = '#';
+    char foodChar = '@';
 
-    snakePart *tail = createNewHead();
-    snakePart *head = createNewHead();
-    snakePart *body = createNewHead();
+    snakePart *tail = createSnakePart();
+    snakePart *head = createSnakePart();
+    snakePart *body = createSnakePart();
 
     // Initialize head
     head->xpos = width/2;
@@ -189,13 +208,12 @@ void startGame(int height, int width){
     while(tempPart!=NULL){
         snakeSize++;    // Increase the snake size
         swapKeyValues(key, hand, (tempPart->ypos*width)+tempPart->xpos, width*height-snakeSize);  // Add new part to correct postion of key and hand
-        map[tempPart->ypos][tempPart->xpos]='#';    // Paint the snake character onto the map
+        map[tempPart->ypos][tempPart->xpos]=snakeChar;    // Paint the snake character onto the map
         tempPart=tempPart->backward;
     }
 
-
     // Place the first food on the map
-    placeFood(width, height, map, key, hand, snakeSize); 
+    placeFood(width, height, foodChar, map, key, hand, snakeSize); 
     
     // Create variables for game loop
     snakePart *moveHead;    // Holds the forward moving head
@@ -214,9 +232,10 @@ void startGame(int height, int width){
         refresh();
         */
         
+        
 
         // Create new Head
-        moveHead = createNewHead();
+        moveHead = createSnakePart();
         head->forward=moveHead;
         moveHead->backward=head;
         moveHead->xpos=head->xpos;
@@ -260,7 +279,13 @@ void startGame(int height, int width){
         head=moveHead;
 
         // If eating
-        if(map[head->ypos][head->xpos]=='@'){
+        if(deathCheck(head->xpos, head->ypos, height, width, snakeChar, map)==1){
+
+            // We have died
+            running = 0;
+
+
+        } else if(map[head->ypos][head->xpos]==foodChar){
             
             // Swap new head with length-snakeSize
             int pos1 = (head->ypos*width) + head->xpos;
@@ -269,9 +294,9 @@ void startGame(int height, int width){
             snakeSize++;
 
             // Dont remove tail
-            map[head->ypos][head->xpos] = '#';
+            map[head->ypos][head->xpos] = snakeChar;
 
-            placeFood(width, height, map, key, hand, snakeSize);
+            placeFood(width, height, foodChar, map, key, hand, snakeSize);
         } else {
 
             // Swap old tail and new head in hand (for placing food not on snake)
@@ -280,7 +305,7 @@ void startGame(int height, int width){
             swapKeyValues(key, hand, pos1, pos2);
 
             // Remove tail
-            map[head->ypos][head->xpos] = '#';
+            map[head->ypos][head->xpos] = snakeChar;
             map[tail->ypos][tail->xpos] = ' ';
             tail=tail->forward;
             free(tail->backward);   // Free tail memory
@@ -292,11 +317,16 @@ void startGame(int height, int width){
 
         // Wait a tick
         usleep(250000);
+
     }
 
 
     // ---------------------------- Cleanup ----------------------------- //
     
     cleanUp(&head, &map, height, &hand, &key);
+
+    // ---------------------------- Return Score ----------------------------- //
+
+    return snakeSize * 100;
 
 }
