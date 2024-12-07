@@ -8,6 +8,8 @@
 
 .global main
 
+.global addNums
+
 .text
 
 main:   
@@ -45,7 +47,10 @@ one:
 two:
     //printStr "2: \n"
     b exit
-    
+
+addNums:
+    add x0, x0, x1
+    ret
 
 exit:
     //printStr "Exiting..."

@@ -6,6 +6,10 @@
 #include <unistd.h>
 #include <time.h>
 
+// -------------------------------- Aarch64 Functions -------------------------------- //
+
+extern int addNums(int a, int b);
+
 // -------------------------------- Start Menu -------------------------------- //
 #define MAX_NAME_LENGTH 50
 #define MAX_PLAYERS 10
@@ -188,6 +192,7 @@ typedef struct snakeP{
     struct snakeP *backward;
 } snakePart;
 
+// Stay in C
 snakePart* createSnakePart(){
     snakePart* newSnakePart = (snakePart*) malloc(sizeof(snakePart));
     newSnakePart->xpos = 0;
