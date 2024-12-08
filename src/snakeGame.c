@@ -315,9 +315,9 @@ void initializeKeyAndHand(int32_t **key, int32_t **hand, int32_t width, int32_t 
     }
 }
 
-// Assembly
+// Moved to Assembly
+/*
 void cleanUp(snakePart **head, char ***map, int32_t height, int32_t **hand, int32_t **key){ 
-
     //endwin(); // Clean up ncurses // uncomment for ncurses
     
     // Delete snake
@@ -342,6 +342,7 @@ void cleanUp(snakePart **head, char ***map, int32_t height, int32_t **hand, int3
 
     return;
 }
+*/
 
 int32_t startGame(int32_t height, int32_t width){
 
