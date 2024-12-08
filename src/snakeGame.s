@@ -10,6 +10,8 @@
 
 .global addNums
 
+.global cleanUpA
+
 .text
 
 main:   
@@ -48,8 +50,114 @@ two:
     //printStr "2: \n"
     b exit
 
+cleanUpA:
+    // x1: char ***map
+    // x2: int height
+    // x3: int **hand
+    // x4: int **key
+    // x5: snakePart **head
+    // x6: snakePart *tempPart
+    // x7: snakePart *next
+   
+    mov x5, x0
+
+    stp x0, x1, [sp, #-16]!
+    stp x2, x3, [sp, #-16]!
+    stp x4, x5, [sp, #-16]!
+    //bl endwin uncomment for ncurses
+    ldp x4, x5, [sp], #16
+    ldp x2, x3, [sp], #16
+    ldp x0, x1, [sp], #16
+
+    // Delete snake
+
+    
+    //snakePart *tempPart = *head
+    ldr x6, [x5]
+    //snakePart *next = tempPart
+    mov x7, x6
+    
+    stp x30, x0, [sp, #-16]!
+    bl cleanUpA_deleteSnakeLoop
+    ldp x30, x0, [sp], #16
+
+    mov x8, 0
+    stp x30, x0, [sp, #-16]!
+    bl cleanUpA_deleteMapLoop
+    ldp x30, x0, [sp], #16
+
+    ret
+
+
+cleanUpA_deleteSnakeLoop:
+    // next == NULL?
+    cmp x7, #0
+    b.eq return
+
+    // next = next->backward
+    // next  next  4+4+8  (int32 + int32 + pointer)
+    //  V     V     V
+    ldr x7, [x7, #16]
+
+    // free(tempPart);
+    mov x0, x6
+
+    stp x0, x1, [sp, #-16]!
+    stp x2, x3, [sp, #-16]!
+    stp x4, x5, [sp, #-16]!
+    stp x6, x30, [sp, #-16]!
+    stp x7, x8, [sp, #-16]!
+    bl free
+    ldp x7, x8, [sp], #16
+    ldp x6, x30, [sp], #16
+    ldp x4, x5, [sp], #16
+    ldp x2, x3, [sp], #16
+    ldp x0, x1, [sp], #16
+
+    // tempPart = next;
+    mov x6, x7
+
+    b cleanUpA_deleteSnakeLoop
+
+cleanUpA_deleteMapLoop:
+    // x8: i =0
+    cmp x8, x2
+    b.ge return
+
+    // calculate shift for freeing rows lsl 3 for x 8 for byte size of memory address 
+    lsl x9, x8, #3 
+
+    // x10: *map
+    ldr x10, [x1]
+
+    // x11: *map[i]
+    ldr x0, [x10,x9]
+
+    // free((*map)[i])
+    stp x0, x1, [sp, #-16]!
+    stp x2, x3, [sp, #-16]!
+    stp x4, x5, [sp, #-16]!
+    stp x6, x30, [sp, #-16]!
+    bl free
+    ldp x6, x30, [sp], #16
+    ldp x4, x5, [sp], #16
+    ldp x2, x3, [sp], #16
+    ldp x0, x1, [sp], #16
+
+    // i++
+    add x8, x8, 1
+ 
+    b cleanUpA_deleteMapLoop
+
+
+
+
+
 addNums:
     add x0, x0, x1
+    ret
+
+return:
     ret
 
 exit:
@@ -57,8 +165,8 @@ exit:
 // Setup the parameters to exit the program
 // and then call Linux to do it.
 	mov     X0, #0      // Use 0 return code
-        mov     X8, #93      // Service command code 93 terminates this program
-        svc     0           // Call linux to terminate the program
+    mov     X8, #93      // Service command code 93 terminates this program
+    svc     0           // Call linux to terminate the program
 
 .data
 

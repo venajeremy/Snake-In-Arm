@@ -6,9 +6,20 @@
 #include <unistd.h>
 #include <time.h>
 
+
+typedef struct snakeP{ 
+    int32_t xpos;
+    int32_t ypos;
+    struct snakeP *forward;
+    struct snakeP *backward;
+} snakePart;
+
+
+
 // -------------------------------- Aarch64 Functions -------------------------------- //
 
-extern int addNums(int a, int b);
+extern int32_t addNums(int32_t a, int32_t b);
+extern void cleanUpA(snakePart **head, char ***map, int32_t height, int32_t **hand, int32_t **key);
 
 // -------------------------------- Start Menu -------------------------------- //
 #define MAX_NAME_LENGTH 50
@@ -16,10 +27,10 @@ extern int addNums(int a, int b);
 
 typedef struct {
     char name[MAX_NAME_LENGTH];
-    int score;
+    int32_t score;
 } Player;
 
-int compare(const void *a, const void *b) {
+int32_t compare(const void *a, const void *b) {
     return ((Player *)b)->score - ((Player *)a)->score;
 }
 
@@ -34,12 +45,12 @@ int32_t input ()
 }
 
 // Function to add a new player to the leaderboard
-void addLeaderboard(int score) {
+void addLeaderboard(int32_t score) {
    FILE *file = fopen("scores.txt", "r");
     if (!file) {
         // If the file does not exist, initialize it with 5 entries of NULL 0
         file = fopen("scores.txt", "w");
-        for (int i = 0; i < 5; i++) {
+        for (int32_t i = 0; i < 5; i++) {
             fprintf(file, "NULL 0\n");
         }
         fclose(file);
@@ -47,9 +58,9 @@ void addLeaderboard(int score) {
         //printf("File initialized with 5 empty entries.\n");
     }
 
-    // Read all existing players into an array
+    // Read all existing players int32_to an array
     Player players[MAX_PLAYERS];
-    int playerCount = 0;
+    int32_t playerCount = 0;
 
     // Read existing entries from the file
     while (fscanf(file, "%49s %d", players[playerCount].name, &players[playerCount].score) != EOF && playerCount < MAX_PLAYERS) {
@@ -79,7 +90,7 @@ void addLeaderboard(int score) {
     }
 
     // Write the sorted leaderboard back to the file
-    for (int i = 0; i < 5; i++) {
+    for (int32_t i = 0; i < 5; i++) {
         fprintf(file, "%s %d\n", players[i].name, players[i].score);
     }
     fclose(file);
@@ -91,7 +102,7 @@ void displayLeaderboard() {
     FILE *file = fopen("scores.txt", "r");
     if (!file) {
         file = fopen("scores.txt", "w");
-        for (int i = 0; i < 5; i++) {
+        for (int32_t i = 0; i < 5; i++) {
             fprintf(file, "NULL 0\n");
         }
         fclose(file);
@@ -99,7 +110,7 @@ void displayLeaderboard() {
     }
 
     Player players[MAX_PLAYERS];
-    int count = 0;
+    int32_t count = 0;
 
     // Read players from the file
     while (fscanf(file, "%s %d", players[count].name, &players[count].score) != EOF) {
@@ -110,7 +121,7 @@ void displayLeaderboard() {
 
     // Display the sorted leaderboard
     printf("------ LEADERBOARD ------\n");
-    for (int i = 0; i < 5; i++) {
+    for (int32_t i = 0; i < 5; i++) {
         printf("%-18s %d\n", players[i].name, players[i].score);
     }
     printf("-------------------------\n");
@@ -120,7 +131,7 @@ void displayLeaderboard() {
     int32_t a = input();
 
     // Clear LeaderBoard
-    for (int i = 0; i < 7; i++) {
+    for (int32_t i = 0; i < 7; i++) {
         printf("\033[1A\033[2K"); // Move cursor up one line, then clear the line
     }
     return;
@@ -142,7 +153,7 @@ int32_t getInputSize ()
     {
         result = atoi(a);
     }
-    for (int i = 0; i < 6; i++) {
+    for (int32_t i = 0; i < 6; i++) {
         printf("\033[1A\033[2K"); // Move cursor up one line, then clear the line
     }
     return result;
@@ -185,13 +196,6 @@ int64_t setHeight ()
 
 // ------------------------------------ Game ------------------------------------ //
 
-typedef struct snakeP{ 
-    int xpos;
-    int ypos;
-    struct snakeP *forward;
-    struct snakeP *backward;
-} snakePart;
-
 // Stay in C
 snakePart* createSnakePart(){
     snakePart* newSnakePart = (snakePart*) malloc(sizeof(snakePart));
@@ -203,7 +207,7 @@ snakePart* createSnakePart(){
 }
 
 // Assembly
-char deathCheck(int xpos, int ypos, int width, int height, char snakeChar, char **map){
+char deathCheck(int32_t xpos, int32_t ypos, int32_t width, int32_t height, char snakeChar, char **map){
 
     if( xpos < 0 || xpos > width-1 || ypos < 0 || ypos > height-1 ){
         return 1;
@@ -216,14 +220,14 @@ char deathCheck(int xpos, int ypos, int width, int height, char snakeChar, char 
 }
 
 // Stay in C
-int getInput(){
-    int input;
+int32_t getInput(){
+    int32_t input;
     input = getchar();
     while(getchar() != '\n');
     return input;
 
     /* uncomment for ncurses
-    int input = getch();
+    int32_t input = getch();
     while(getch()!=ERR){
     }
     return input;
@@ -231,39 +235,39 @@ int getInput(){
 }
 
 // Stay in C
-void printBoard(int boardWidth, int boardHeight, char **map){
-    for(int i = 0 ; i < boardWidth ; i++){
+void printBoard(int32_t boardWidth, int32_t boardHeight, char **map){
+    for(int32_t i = 0 ; i < boardWidth ; i++){
         printf(" o");
     }
     printf("\n");
-    for(int i = 0 ; i < boardHeight ; i++){
+    for(int32_t i = 0 ; i < boardHeight ; i++){
         printf("o");
-        for(int j = 0 ; j < boardWidth ; j++){
+        for(int32_t j = 0 ; j < boardWidth ; j++){
             printf(" %c", map[i][j]);
         }
         printf("o");
         printf("\n\r");
     }
-    for(int i = 0 ; i < boardWidth ; i++){
+    for(int32_t i = 0 ; i < boardWidth ; i++){
         printf(" o");
     }
     printf("\n");
 
 }
 
-int getRand(){
+int32_t getRand(){
     return rand();
 }
 
 // Assembly
-void placeFood(int boardWidth, int boardHeight, char foodChar, char **graph, int *key, int *hand, int snakeSize){
+void placeFood(int32_t boardWidth, int32_t boardHeight, char foodChar, char **graph, int32_t *key, int32_t *hand, int32_t snakeSize){
 
     // Get a valid position to place our food ( -snakeSize are all the positions of the snake )
-    int position = getRand() % ((boardWidth * boardHeight)-snakeSize);
+    int32_t position = getRand() % ((boardWidth * boardHeight)-snakeSize);
 
     // Get y and x position from position
-    int y = hand[position] / boardWidth;
-    int x = hand[position] % boardWidth;
+    int32_t y = hand[position] / boardWidth;
+    int32_t x = hand[position] % boardWidth;
 
     graph[y][x]=foodChar;
     
@@ -271,9 +275,9 @@ void placeFood(int boardWidth, int boardHeight, char foodChar, char **graph, int
 }
 
 // Assembly
-void swapKeyValues(int *key, int *hand, int pos1, int pos2){
-   int location1 = key[pos1];
-   int location2 = key[pos2];
+void swapKeyValues(int32_t *key, int32_t *hand, int32_t pos1, int32_t pos2){
+   int32_t location1 = key[pos1];
+   int32_t location2 = key[pos2];
    hand[location1] = pos2;
    hand[location2] = pos1;
    key[pos1] = location2;
@@ -284,13 +288,13 @@ void swapKeyValues(int *key, int *hand, int pos1, int pos2){
 
 
 // Stay in C
-void initializeMap(char ***map, int height, int width){
+void initializeMap(char ***map, int32_t height, int32_t width){
 
     *map = (char**) malloc(sizeof(char*) * height);   // Allocate rows of 2d Array
 
-    for(int i = 0 ; i < height ;  i++){
+    for(int32_t i = 0 ; i < height ;  i++){
         (*map)[i] = (char*) malloc(sizeof(char) * width);      // Allocate all columns of 2d Array
-        for(int j = 0 ; j < width ;  j++){
+        for(int32_t j = 0 ; j < width ;  j++){
             (*map)[i][j] = ' ';                                // Initialize values of 2d Array
         }   
     }
@@ -298,21 +302,21 @@ void initializeMap(char ***map, int height, int width){
 }
 
 // Stay in C
-void initializeKeyAndHand(int **key, int **hand, int width, int height){
+void initializeKeyAndHand(int32_t **key, int32_t **hand, int32_t width, int32_t height){
     // Initialize arrays for placing food
-    (*key) = (int*) malloc(sizeof(int) * width * height);     // Used to hold the location of a food position in the hand
+    (*key) = (int32_t*) malloc(sizeof(int32_t) * width * height);     // Used to hold the location of a food position in the hand
 
-    (*hand) = (int*) malloc(sizeof(int) * width * height);    // Used to hold food positions avaiable to pick randomly
+    (*hand) = (int32_t*) malloc(sizeof(int32_t) * width * height);    // Used to hold food positions avaiable to pick randomly
     
     // Initialize every food position at its index
-    for(int i = 0 ; i < width*height ; i++){
+    for(int32_t i = 0 ; i < width*height ; i++){
         (*key)[i] = i;
         (*hand)[i] = i;
     }
 }
 
 // Assembly
-void cleanUp(snakePart **head, char ***map, int height, int **hand, int **key){ 
+void cleanUp(snakePart **head, char ***map, int32_t height, int32_t **hand, int32_t **key){ 
 
     //endwin(); // Clean up ncurses // uncomment for ncurses
     
@@ -327,7 +331,7 @@ void cleanUp(snakePart **head, char ***map, int height, int **hand, int **key){
 
 
     // Delete map
-    for(int i = 0 ; i < height ; i++){
+    for(int32_t i = 0 ; i < height ; i++){
         free((*map)[i]);
     }
     free(*map);
@@ -339,7 +343,7 @@ void cleanUp(snakePart **head, char ***map, int height, int **hand, int **key){
     return;
 }
 
-int startGame(int height, int width){
+int32_t startGame(int32_t height, int32_t width){
 
     printf("Loading Game...\n");
     
@@ -350,19 +354,19 @@ int startGame(int height, int width){
 
     // ------------------ Initialize The Map ------------------- // 
     char **map = NULL;
-    initializeMap(&map, height, width);  // initializeMap makes map point to a 2d array allocated with sizes height and width
+    initializeMap(&map, height, width);  // initializeMap makes map point32_t to a 2d array allocated with sizes height and width
 
     // ------------------ Initialize Components for Placeing Food ------------------- // 
 
-    int *key = NULL;
-    int *hand = NULL;
+    int32_t *key = NULL;
+    int32_t *hand = NULL;
     initializeKeyAndHand(&key, &hand, width, height);
 
     // ---------------------- Initialize Snake ----------------------- //
 
     // Right now there is a hardcoded snake start size of 3
 
-    int snakeSize=0;
+    int32_t snakeSize=0;
     char snakeChar = '#';
     char foodChar = '@';
 
@@ -386,12 +390,12 @@ int startGame(int height, int width){
     tail->ypos = (height/2);
     tail->forward = body;
 
-    // Paint snake onto map
+    // Paint32_t snake onto map
     snakePart *tempPart = head;
     while(tempPart!=NULL){
         snakeSize++;    // Increase the snake size
         swapKeyValues(key, hand, (tempPart->ypos*width)+tempPart->xpos, width*height-snakeSize);  // Add new part to correct postion of key and hand
-        map[tempPart->ypos][tempPart->xpos]=snakeChar;    // Paint the snake character onto the map
+        map[tempPart->ypos][tempPart->xpos]=snakeChar;    // Paint32_t the snake character onto the map
         tempPart=tempPart->backward;
     }
 
@@ -400,8 +404,8 @@ int startGame(int height, int width){
     
     // Create variables for game loop
     snakePart *moveHead;    // Holds the forward moving head
-    int ch;     // Stores new input
-    int currentDirection='d';   // Store current input
+    int32_t ch;     // Stores new input
+    int32_t currentDirection='d';   // Store current input
 
     // Game loop
     char running=1;
@@ -471,8 +475,8 @@ int startGame(int height, int width){
         } else if(map[head->ypos][head->xpos]==foodChar){
             
             // Swap new head with length-snakeSize
-            int pos1 = (head->ypos*width) + head->xpos;
-            int pos2 = hand[(width*height)-snakeSize];
+            int32_t pos1 = (head->ypos*width) + head->xpos;
+            int32_t pos2 = hand[(width*height)-snakeSize];
             swapKeyValues(key, hand, pos1, pos2);
             snakeSize++;
 
@@ -483,8 +487,8 @@ int startGame(int height, int width){
         } else {
 
             // Swap old tail and new head in hand (for placing food not on snake)
-            int pos1 = (head->ypos*width) + head->xpos;
-            int pos2 = (tail->ypos*width) + tail->xpos;
+            int32_t pos1 = (head->ypos*width) + head->xpos;
+            int32_t pos2 = (tail->ypos*width) + tail->xpos;
             swapKeyValues(key, hand, pos1, pos2);
 
             // Remove tail
@@ -506,7 +510,7 @@ int startGame(int height, int width){
 
     // ---------------------------- Cleanup ----------------------------- //
     
-    cleanUp(&head, &map, height, &hand, &key);
+    cleanUpA(&head, &map, height, &hand, &key);
 
     // ---------------------------- Return Score ----------------------------- //
 
