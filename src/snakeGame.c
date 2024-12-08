@@ -278,8 +278,9 @@ void placeFood(int32_t boardWidth, int32_t boardHeight, char foodChar, char **gr
 void swapKeyValues(int32_t *key, int32_t *hand, int32_t pos1, int32_t pos2){
    int32_t location1 = key[pos1];
    int32_t location2 = key[pos2];
-   hand[location1] = pos2;
-   hand[location2] = pos1;
+   int32_t save = hand[location1];
+   hand[location1] = hand[location2];
+   hand[location2] = save;
    key[pos1] = location2;
    key[pos2] = location1;
    return;
@@ -315,7 +316,8 @@ void initializeKeyAndHand(int32_t **key, int32_t **hand, int32_t width, int32_t 
     }
 }
 
-// Assembly
+// Went to Assembly
+/*
 void cleanUp(snakePart **head, char ***map, int32_t height, int32_t **hand, int32_t **key){ 
 
     //endwin(); // Clean up ncurses // uncomment for ncurses
@@ -339,6 +341,42 @@ void cleanUp(snakePart **head, char ***map, int32_t height, int32_t **hand, int3
     // Delete key and hand
     free(*key);
     free(*hand);
+
+    return;
+}
+*/
+
+void initializeSnake(snakePart **inHead, snakePart **inTail, char snakeChar, int32_t snakeSize, int32_t width, int32_t height, int *key, int *hand, char **map){
+    *inHead = createSnakePart();
+
+    (*inHead)->xpos = width/2;
+    (*inHead)->ypos = height/2;
+
+    snakePart *tmp = *inHead;
+    for(int32_t i = 1 ; i < snakeSize-1 ; i++){
+        tmp->backward = createSnakePart();
+        tmp->backward->forward = tmp;
+        tmp = tmp->backward;
+        tmp->xpos = (width/2)+i;
+        tmp->ypos = (height/2);
+    }
+    *inTail = createSnakePart();
+    (*inTail)->forward = tmp;
+    tmp->backward = *inTail;
+
+    (*inTail)->xpos = (width/2)+snakeSize-1;
+    (*inTail)->ypos = (height/2);
+
+     // Paint snake onto map
+    tmp = *inHead;
+    int32_t i=0;
+    while(tmp!=NULL){
+        swapKeyValues(key, hand, (tmp->ypos*width)+tmp->xpos, width*height-i);  // Add new part to correct postion of key and hand
+        map[tmp->ypos][tmp->xpos]=snakeChar;    // Paint32_t the snake character onto the map
+        tmp=tmp->backward;
+        i++;
+    }
+
 
     return;
 }
@@ -366,46 +404,32 @@ int32_t startGame(int32_t height, int32_t width){
 
     // Right now there is a hardcoded snake start size of 3
 
-    int32_t snakeSize=0;
+    int32_t snakeSize=3;
     char snakeChar = '#';
+    
+    snakePart *head = createSnakePart();
+    snakePart *tail = createSnakePart();
+   
+    initializeSnake(&head, &tail, snakeChar, snakeSize, width, height, key, hand, map);
+
+    // ---------------------- Place First Food ----------------------- //
+
     char foodChar = '@';
 
-    snakePart *tail = createSnakePart();
-    snakePart *head = createSnakePart();
-    snakePart *body = createSnakePart();
-
-    // Initialize head
-    head->xpos = width/2;
-    head->ypos = height/2;
-    head->backward = body;
-
-    // Initialize middle piece
-    body->xpos = (width/2)-1;
-    body->ypos = (height/2);
-    body->forward = head;
-    body->backward = tail;
-
-    // Initialize tail
-    tail->xpos = (width/2)-2;
-    tail->ypos = (height/2);
-    tail->forward = body;
-
-    // Paint32_t snake onto map
-    snakePart *tempPart = head;
-    while(tempPart!=NULL){
-        snakeSize++;    // Increase the snake size
-        swapKeyValues(key, hand, (tempPart->ypos*width)+tempPart->xpos, width*height-snakeSize);  // Add new part to correct postion of key and hand
-        map[tempPart->ypos][tempPart->xpos]=snakeChar;    // Paint32_t the snake character onto the map
-        tempPart=tempPart->backward;
-    }
-
     // Place the first food on the map
-    placeFood(width, height, foodChar, map, key, hand, snakeSize); 
+    placeFood(width, height, foodChar, map, key, hand, snakeSize);
+    placeFood(width, height, foodChar, map, key, hand, snakeSize);
+    placeFood(width, height, foodChar, map, key, hand, snakeSize);
+    placeFood(width, height, foodChar, map, key, hand, snakeSize);
+    placeFood(width, height, foodChar, map, key, hand, snakeSize);
+
+    // ---------------------- Initialize Variables ----------------------- //
+    
     
     // Create variables for game loop
     snakePart *moveHead;    // Holds the forward moving head
     int32_t ch;     // Stores new input
-    int32_t currentDirection='d';   // Store current input
+    int32_t currentDirection='a';   // Store current input
 
     // Game loop
     char running=1;
@@ -417,9 +441,7 @@ int32_t startGame(int32_t height, int32_t width){
         /* uncomment for ncurses (delete above clear method)
         clear(); 
         refresh();
-        */
-        
-        
+        */ 
 
         // Create new Head
         moveHead = createSnakePart();
@@ -467,7 +489,6 @@ int32_t startGame(int32_t height, int32_t width){
 
         // If eating
         if(deathCheck(head->xpos, head->ypos, height, width, snakeChar, map)==1){
-
             // We have died
             running = 0;
 
@@ -476,7 +497,7 @@ int32_t startGame(int32_t height, int32_t width){
             
             // Swap new head with length-snakeSize
             int32_t pos1 = (head->ypos*width) + head->xpos;
-            int32_t pos2 = hand[(width*height)-snakeSize];
+            int32_t pos2 = hand[(width*height)-snakeSize-1];
             swapKeyValues(key, hand, pos1, pos2);
             snakeSize++;
 
@@ -489,6 +510,7 @@ int32_t startGame(int32_t height, int32_t width){
             // Swap old tail and new head in hand (for placing food not on snake)
             int32_t pos1 = (head->ypos*width) + head->xpos;
             int32_t pos2 = (tail->ypos*width) + tail->xpos;
+            printf("headx: %d, tailx: %d, head: %d, tail: %d\n", head->xpos, tail->xpos, pos1, pos2);
             swapKeyValues(key, hand, pos1, pos2);
 
             // Remove tail
