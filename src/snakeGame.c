@@ -214,7 +214,6 @@ char deathCheck(int xpos, int ypos, int width, int height, char snakeChar, char 
     } else {
         return 0;
     }
-
 }
 */
 // Stay in C
