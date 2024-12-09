@@ -9,6 +9,7 @@
 // -------------------------------- Aarch64 Functions -------------------------------- //
 
 extern int addNums(int a, int b);
+extern int deathCheck(int xpos, int ypos, int width, int height, char snakeChar, char **map);
 
 // -------------------------------- Start Menu -------------------------------- //
 #define MAX_NAME_LENGTH 50
@@ -203,6 +204,7 @@ snakePart* createSnakePart(){
 }
 
 // Assembly
+/*
 char deathCheck(int xpos, int ypos, int width, int height, char snakeChar, char **map){
 
     if( xpos < 0 || xpos > width-1 || ypos < 0 || ypos > height-1 ){
@@ -214,7 +216,7 @@ char deathCheck(int xpos, int ypos, int width, int height, char snakeChar, char 
     }
 
 }
-
+*/
 // Stay in C
 int getInput(){
     int input;
