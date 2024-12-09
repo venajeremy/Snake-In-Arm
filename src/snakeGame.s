@@ -90,11 +90,11 @@ return0:
 
 exit:
     //printStr "Exiting..."
-// Setup the parameters to exit the program
-// and then call Linux to do it.
-	mov     X0, #0      // Use 0 return code
-        mov     X8, #93      // Service command code 93 terminates this program
-        svc     0           // Call linux to terminate the program
+    // Setup the parameters to exit the program
+    // and then call Linux to do it.
+    mov     X0, #0      // Use 0 return code
+    mov     X8, #93     // Service command code 93 terminates this program
+    svc     0           // Call linux to terminate the program
 
 .data
 
