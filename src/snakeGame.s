@@ -10,6 +10,8 @@
 
 .global addNums
 
+.global deathCheck
+
 .text
 
 main:   
