@@ -263,7 +263,7 @@ int32_t getRand(){
 void placeFood(int32_t boardWidth, int32_t boardHeight, char foodChar, char **graph, int32_t *key, int32_t *hand, int32_t snakeSize){
 
     // Get a valid position to place our food ( -snakeSize are all the positions of the snake )
-    int32_t position = getRand() % ((boardWidth * boardHeight)-snakeSize);
+    int32_t position = getRand() % ((boardWidth * boardHeight)-snakeSize-1);
 
     // Get y and x position from position
     int32_t y = hand[position] / boardWidth;
@@ -278,9 +278,8 @@ void placeFood(int32_t boardWidth, int32_t boardHeight, char foodChar, char **gr
 void swapKeyValues(int32_t *key, int32_t *hand, int32_t pos1, int32_t pos2){
    int32_t location1 = key[pos1];
    int32_t location2 = key[pos2];
-   int32_t save = hand[location1];
-   hand[location1] = hand[location2];
-   hand[location2] = save;
+   hand[location1] = pos2;
+   hand[location2] = pos1;
    key[pos1] = location2;
    key[pos2] = location1;
    return;
@@ -369,7 +368,7 @@ void initializeSnake(snakePart **inHead, snakePart **inTail, char snakeChar, int
 
      // Paint snake onto map
     tmp = *inHead;
-    int32_t i=0;
+    int32_t i=1;
     while(tmp!=NULL){
         swapKeyValues(key, hand, (tmp->ypos*width)+tmp->xpos, width*height-i);  // Add new part to correct postion of key and hand
         map[tmp->ypos][tmp->xpos]=snakeChar;    // Paint32_t the snake character onto the map
@@ -417,10 +416,6 @@ int32_t startGame(int32_t height, int32_t width){
     char foodChar = '@';
 
     // Place the first food on the map
-    placeFood(width, height, foodChar, map, key, hand, snakeSize);
-    placeFood(width, height, foodChar, map, key, hand, snakeSize);
-    placeFood(width, height, foodChar, map, key, hand, snakeSize);
-    placeFood(width, height, foodChar, map, key, hand, snakeSize);
     placeFood(width, height, foodChar, map, key, hand, snakeSize);
 
     // ---------------------- Initialize Variables ----------------------- //
@@ -510,7 +505,7 @@ int32_t startGame(int32_t height, int32_t width){
             // Swap old tail and new head in hand (for placing food not on snake)
             int32_t pos1 = (head->ypos*width) + head->xpos;
             int32_t pos2 = (tail->ypos*width) + tail->xpos;
-            printf("headx: %d, tailx: %d, head: %d, tail: %d\n", head->xpos, tail->xpos, pos1, pos2);
+            
             swapKeyValues(key, hand, pos1, pos2);
 
             // Remove tail
