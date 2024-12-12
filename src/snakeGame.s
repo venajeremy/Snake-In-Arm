@@ -12,6 +12,8 @@
 
 .global cleanUpA
 
+.global swapKeyValuesA
+
 .text
 
 main:   
@@ -150,7 +152,31 @@ cleanUpA_deleteMapLoop:
     b cleanUpA_deleteMapLoop
 
 
+swapKeyValuesA:
+    // x0: int32_t *key
+    // x1: int32_t *hand
+    // x2: int32_t pos1
+    // x3: int32_t pos2
 
+    // x4: int32_t location1
+    // x5: int32_t location2
+
+    // location1 = key[pos1]
+    ldr w4, [x0, x2, lsl #2]
+    // location2 = key[pos2]
+    ldr w5, [x0, x3, lsl #2]
+
+    // hand[location1] = pos2
+    str w3, [x1, x4, lsl #2]
+    // hand[location2] = pos1
+    str w2, [x1, x5, lsl #2]
+
+    // key[pos1] = location2
+    str w5, [x0, x2, lsl #2]
+    // key[pos2] = location1
+    str w4, [x0, x3, lsl #2]
+
+    ret
 
 
 addNums:

@@ -20,6 +20,7 @@ typedef struct snakeP{
 
 extern int32_t addNums(int32_t a, int32_t b);
 extern void cleanUpA(snakePart **head, char ***map, int32_t height, int32_t **hand, int32_t **key);
+extern void swapKeyValuesA(int32_t *key, int32_t *hand, int32_t pos1, int32_t pos2);
 
 // -------------------------------- Start Menu -------------------------------- //
 #define MAX_NAME_LENGTH 50
@@ -274,6 +275,7 @@ void placeFood(int32_t boardWidth, int32_t boardHeight, char foodChar, char **gr
     return;
 }
 
+/*
 // Assembly
 void swapKeyValues(int32_t *key, int32_t *hand, int32_t pos1, int32_t pos2){
    int32_t location1 = key[pos1];
@@ -284,7 +286,7 @@ void swapKeyValues(int32_t *key, int32_t *hand, int32_t pos1, int32_t pos2){
    key[pos2] = location1;
    return;
 }
-
+*/
 
 
 // Stay in C
@@ -370,7 +372,7 @@ void initializeSnake(snakePart **inHead, snakePart **inTail, char snakeChar, int
     tmp = *inHead;
     int32_t i=1;
     while(tmp!=NULL){
-        swapKeyValues(key, hand, (tmp->ypos*width)+tmp->xpos, width*height-i);  // Add new part to correct postion of key and hand
+        swapKeyValuesA(key, hand, (tmp->ypos*width)+tmp->xpos, width*height-i);  // Add new part to correct postion of key and hand
         map[tmp->ypos][tmp->xpos]=snakeChar;    // Paint32_t the snake character onto the map
         tmp=tmp->backward;
         i++;
@@ -378,6 +380,10 @@ void initializeSnake(snakePart **inHead, snakePart **inTail, char snakeChar, int
 
 
     return;
+}
+
+void printReg(unsigned long long reg) {
+    printf("Register value: 0x%llx\n", reg);
 }
 
 int32_t startGame(int32_t height, int32_t width){
@@ -493,7 +499,7 @@ int32_t startGame(int32_t height, int32_t width){
             // Swap new head with length-snakeSize
             int32_t pos1 = (head->ypos*width) + head->xpos;
             int32_t pos2 = hand[(width*height)-snakeSize-1];
-            swapKeyValues(key, hand, pos1, pos2);
+            swapKeyValuesA(key, hand, pos1, pos2);
             snakeSize++;
 
             // Dont remove tail
@@ -506,7 +512,7 @@ int32_t startGame(int32_t height, int32_t width){
             int32_t pos1 = (head->ypos*width) + head->xpos;
             int32_t pos2 = (tail->ypos*width) + tail->xpos;
             
-            swapKeyValues(key, hand, pos1, pos2);
+            swapKeyValuesA(key, hand, pos1, pos2);
 
             // Remove tail
             map[head->ypos][head->xpos] = snakeChar;
