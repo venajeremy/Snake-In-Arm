@@ -1,4 +1,5 @@
 *.core
+scores.txt
 tmp/*
 !tmp/.gitkeep
 dist/*
