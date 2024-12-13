@@ -18,9 +18,13 @@ typedef struct snakeP{
 
 // -------------------------------- Aarch64 Functions -------------------------------- //
 
-extern int32_t addNums(int32_t a, int32_t b);
 extern void cleanUpA(snakePart **head, char ***map, int32_t height, int32_t **hand, int32_t **key);
+
 extern void swapKeyValuesA(int32_t *key, int32_t *hand, int32_t pos1, int32_t pos2);
+
+extern int addNums(int a, int b);
+
+extern int deathCheck(int xpos, int ypos, int width, int height, char snakeChar, char **map);
 
 // -------------------------------- Start Menu -------------------------------- //
 #define MAX_NAME_LENGTH 50
@@ -208,7 +212,8 @@ snakePart* createSnakePart(){
 }
 
 // Assembly
-char deathCheck(int32_t xpos, int32_t ypos, int32_t width, int32_t height, char snakeChar, char **map){
+/*
+char deathCheck(int xpos, int ypos, int width, int height, char snakeChar, char **map){
 
     if( xpos < 0 || xpos > width-1 || ypos < 0 || ypos > height-1 ){
         return 1;
@@ -217,9 +222,8 @@ char deathCheck(int32_t xpos, int32_t ypos, int32_t width, int32_t height, char 
     } else {
         return 0;
     }
-
 }
-
+*/
 // Stay in C
 int32_t getInput(){
     int32_t input;

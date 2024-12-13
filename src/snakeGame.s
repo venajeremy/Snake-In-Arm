@@ -14,6 +14,9 @@
 
 .global swapKeyValuesA
 
+.global deathCheck
+
+
 .text
 
 main:   
@@ -183,15 +186,45 @@ addNums:
     add x0, x0, x1
     ret
 
+
 return:
+    ret
+
+deathCheck:
+    cmp x0, 0                   // xpos < 0
+    blt return1
+    
+    add x2, x2, -1              // width - 1
+    cmp x0, x2                  // xpos > width - 1
+    bgt return1
+
+    cmp x1, 0                   // ypos < 0
+    blt return1
+
+    add x3, x3, -1              // height - 1
+    cmp x1, x3                  // ypos > height - 1
+    bgt return1
+
+    ldr x6, [x5, x1, lsl 3]     // value of map[xpos][ypos]
+    add x6, x6, x0
+    ldrb w7, [x6]
+
+    cmp w7, w4                  // map[xpos][ypos] == snakeChar
+    beq return1
+
+    mov x0, 0
+    ret
+
+return1:
+    mov x0, 1  
     ret
 
 exit:
     //printStr "Exiting..."
-// Setup the parameters to exit the program
-// and then call Linux to do it.
-	mov     X0, #0      // Use 0 return code
-    mov     X8, #93      // Service command code 93 terminates this program
+    // Setup the parameters to exit the program
+    // and then call Linux to do it.
+    mov     X0, #0      // Use 0 return code
+    mov     X8, #93     // Service command code 93 terminates this program
     svc     0           // Call linux to terminate the program
 
 .data
