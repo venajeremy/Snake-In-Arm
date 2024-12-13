@@ -16,6 +16,7 @@
 
 .global deathCheck
 
+.global moveHeadAndCheckQuitA
 
 .text
 
@@ -219,6 +220,220 @@ return1:
     mov x0, 1  
     ret
 
+moveHeadAndCheckQuitA:
+    //Inputs:
+    //x0: snakePart **head
+    //x1: int32_t currentDirection
+
+    //Variables:
+    //x2: int32_t running
+    //x3: snakePart *moveHead
+    //x4: int32_t ch
+
+    // running = 1
+    mov x2, #1
+
+    // snakePart *moveHead = createSnakePart
+    stp x0, x1, [sp, #-16]!
+    stp x2, x4, [sp, #-16]!
+    stp x5, x30, [sp, #-16]!
+    // x0 now has the pointer to the newly allocated snake part
+    bl createSnakePart
+    // save that to x3
+    mov x3, x0
+    // we only save and load the other registers
+    ldp x5, x30, [sp], #16
+    ldp x2, x4, [sp], #16
+    ldp x0, x1, [sp], #16
+
+    // (*head)->forward=moveHead
+    // Step 1: dereference **head and get memory address of actual head
+    ldr x5, [x0]
+    // Step 2: update the forward at the address with our newHead we just created
+    //            V = (int32_t(4) + int32_t(4)) = starting address of forward  
+    str x3, [x5, #8]
+
+    // moveHead->backward=(*head)
+    //            V = (int32_t(4) + int32_t(4) + memoryAdd(8)) = starting address of backward 
+    str x5, [x3, #16]
+
+    //moveHead->xpos = (*head)->xpos
+    //moveHead->ypos = (*head)->ypos
+
+    // Step 1: get (*head)->xpos and (*head)->xpos
+    // x6: (*head)->xpos ( no shift )
+    ldr w6, [x5]
+    // x7: (*head)->ypos ( shift 4 for int32_t )
+    ldr w7, [x5, #4]
+
+    // Step 2: load these values into movehead
+    str w6, [x3]
+    str w7, [x3, #4]
+
+    // Get input
+    stp x0, x1, [sp, #-16]!
+    stp x2, x3, [sp, #-16]!
+    stp x30, x5, [sp, #-16]!
+    stp x6, x7, [sp, #-16]!
+    // x0 now has user's input
+    bl getInput;
+    // save that to x4
+    mov x4, x0
+    // we only save and load the other registers
+    ldp x6, x7, [sp], #16
+    ldp x30, x5, [sp], #16
+    ldp x2, x3, [sp], #16
+    ldp x0, x1, [sp], #16
+
+
+    /* uncomment for ncurses
+    stp x0, x1, [sp, #-16]!
+    stp x2, x3, [sp, #-16]!
+    stp x4, x5, [sp, #-16]!
+    stp x6, x7, [sp, #-16]!
+    stp x8, x30, [sp, #-16]!
+    bl clear
+    bl refresh
+    ldp x8, x30, [sp], #16
+    ldp x6, x7, [sp], #16
+    ldp x4, x5, [sp], #16
+    ldp x2, x3, [sp], #16
+    ldp x0, x1, [sp], #16
+    */
+    // Start comment for ncurses
+    stp x0, x1, [sp, #-16]!
+    stp x2, x3, [sp, #-16]!
+    stp x4, x5, [sp, #-16]!
+    stp x6, x7, [sp, #-16]!
+    stp x8, x30, [sp, #-16]!
+    ldr x0, =clear
+    // clear terminal
+    bl system;
+    // we only save and load the other registers
+    ldp x8, x30, [sp], #16
+    ldp x6, x7, [sp], #16
+    ldp x4, x5, [sp], #16
+    ldp x2, x3, [sp], #16
+    ldp x0, x1, [sp], #16
+    // End comment for ncurses
+
+
+    // Movement checks
+
+    // x4: ch   ( new user direction )
+    // x1: currentDireciton ( previous direction )
+
+    /* ascii direciton key:
+        'w' = 119
+        'a' = 97
+        's' = 115
+        'd' = 100
+
+        'q' = 113   
+    */
+    // No input entered check
+    
+    cmp x4, #119
+    b.eq updateCurrentDirection
+    cmp x4, #97
+    b.eq updateCurrentDirection
+    cmp x4, #115
+    b.eq updateCurrentDirection
+    cmp x4, #100
+    b.eq updateCurrentDirection
+    cmp x4, #113
+    b.eq updateCurrentDirection
+
+    b handleMovement
+
+
+updateCurrentDirection:
+    // If we entered a valid input updatea the current direction (x1) to be the entered input(x4)
+    mov x1, x4
+
+    b handleMovement
+
+handleMovement:
+
+    // move in the direction of currentDirection (x1) ( we already updated it if a valid input was entered )
+    
+
+    /* ascii direciton key:
+        'w' = 119
+        'a' = 97
+        's' = 115
+        'd' = 100
+
+        'q' = 113   
+    */
+
+    // if(currentDirection=='a'):
+    cmp x1, #97
+    b.eq moveLeft
+
+    // if(currentDirection=='d'):
+    cmp x1, #100
+    b.eq moveRight
+
+    // if(currentDirection=='w'):
+    cmp x1, #119
+    b.eq moveUp
+
+    // if(currentDirection=='s'): 
+    cmp x1, #115
+    b.eq moveDown
+
+    // if(currentDirection=='q'):
+    cmp x1, #113
+    b.eq moveQuit
+
+
+// x6: old xpos
+// x7: old ypos
+
+moveLeft:
+    // moveHead->xpos--;
+    sub x6, x6, #1
+    b movementFinish
+
+moveRight:
+    // moveHead->xpos++;
+    add x6, x6, #1
+    b movementFinish
+
+moveUp:
+    // moveHead->ypos--;
+    sub x7, x7, #1
+    b movementFinish
+
+moveDown:
+    // moveHead->ypos++;
+    add x7, x7, #1
+    b movementFinish
+
+moveQuit:
+    // running = 0;
+    mov x2, #0
+    b movementFinish
+
+movementFinish:
+
+    // update the positions of the new head
+    // moveHead->xpos = new xpos (x6)
+    str w6, [x3]
+    // moveHead->ypos = new ypos (x7)
+    //            V = (int32_t(4) memory address of forward)
+    str w7, [x3, #4]
+
+    // *head=moveHead
+    // Make head point to newhead
+    str x3, [x0]
+
+    // return running
+    mov x0, x2
+    ret
+
+
 exit:
     //printStr "Exiting..."
     // Setup the parameters to exit the program
@@ -230,4 +445,5 @@ exit:
 .data
 
 state: .fill 1, 1, 0
+clear: .asciz "clear"
 

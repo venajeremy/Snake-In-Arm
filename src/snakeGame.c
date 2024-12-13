@@ -22,9 +22,11 @@ extern void cleanUpA(snakePart **head, char ***map, int32_t height, int32_t **ha
 
 extern void swapKeyValuesA(int32_t *key, int32_t *hand, int32_t pos1, int32_t pos2);
 
-extern int addNums(int a, int b);
+extern int32_t addNums(int a, int b);
 
-extern int deathCheck(int xpos, int ypos, int width, int height, char snakeChar, char **map);
+extern int32_t deathCheck(int xpos, int ypos, int width, int height, char snakeChar, char **map);
+
+extern int32_t moveHeadAndCheckQuitA(snakePart **head, int32_t currentDirection);
 
 // -------------------------------- Start Menu -------------------------------- //
 #define MAX_NAME_LENGTH 50
@@ -387,9 +389,10 @@ void initializeSnake(snakePart **inHead, snakePart **inTail, char snakeChar, int
     return;
 }
 
+/*
 // Assembly
 int32_t moveHeadAndCheckQuit(snakePart **head, int32_t currentDirection){
-    int running=1;
+    int32_t running=1;
 
     // Create new Head
     snakePart *moveHead = createSnakePart();
@@ -399,13 +402,13 @@ int32_t moveHeadAndCheckQuit(snakePart **head, int32_t currentDirection){
     moveHead->ypos=(*head)->ypos;
     
     // Get input
-    int ch = getInput();
+    int32_t ch = getInput();
 
     // Clear previous board
-    /* uncomment for ncurses (delete above clear method)
-    clear(); 
-    refresh();
-    */ 
+    // uncomment for ncurses (delete above clear method)
+    //clear(); 
+    //refresh();
+     
 
     system("clear");    // delete if using ncurses
 
@@ -413,11 +416,11 @@ int32_t moveHeadAndCheckQuit(snakePart **head, int32_t currentDirection){
     if(ch=='a'||ch=='d'||ch=='w'||ch=='s'||ch=='q'){
         currentDirection = ch;
     }
-    /* uncomment for ncurses and delete above (maybe we should keep above for ease in assembly)
-    if(ch!=ERR){
-    currentDirection = ch;
-    }
-    */
+    // uncomment for ncurses and delete above (maybe we should keep above for ease in assembly)
+    //if(ch!=ERR){
+    //currentDirection = ch;
+    //}
+    
 
     // Move in inputed direction
     if(currentDirection=='a'){
@@ -443,6 +446,7 @@ int32_t moveHeadAndCheckQuit(snakePart **head, int32_t currentDirection){
 
     return running;
 }
+*/
 
 void printReg(unsigned long long reg) {
     printf("Register value: 0x%llx\n", reg);
@@ -500,7 +504,7 @@ int32_t startGame(int32_t height, int32_t width){
     // Start Game Loop
     while(running==1){
 
-        running = moveHeadAndCheckQuit(&head, currentDirection);
+        running = moveHeadAndCheckQuitA(&head, currentDirection);
 
         // If eating
         if(deathCheck(head->xpos, head->ypos, height, width, snakeChar, map)==1){
