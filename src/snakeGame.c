@@ -351,6 +351,7 @@ void cleanUp(snakePart **head, char ***map, int32_t height, int32_t **hand, int3
 }
 */
 
+// Assembly
 void initializeSnake(snakePart **inHead, snakePart **inTail, char snakeChar, int32_t snakeSize, int32_t width, int32_t height, int *key, int *hand, char **map){
     *inHead = createSnakePart();
 
@@ -386,13 +387,70 @@ void initializeSnake(snakePart **inHead, snakePart **inTail, char snakeChar, int
     return;
 }
 
+// Assembly
+int32_t moveHeadAndCheckQuit(snakePart **head, int32_t currentDirection){
+    int running=1;
+
+    // Create new Head
+    snakePart *moveHead = createSnakePart();
+    (*head)->forward=moveHead;
+    moveHead->backward=(*head);
+    moveHead->xpos=(*head)->xpos;
+    moveHead->ypos=(*head)->ypos;
+    
+    // Get input
+    int ch = getInput();
+
+    // Clear previous board
+    /* uncomment for ncurses (delete above clear method)
+    clear(); 
+    refresh();
+    */ 
+
+    system("clear");    // delete if using ncurses
+
+    // No input entered check
+    if(ch=='a'||ch=='d'||ch=='w'||ch=='s'||ch=='q'){
+        currentDirection = ch;
+    }
+    /* uncomment for ncurses and delete above (maybe we should keep above for ease in assembly)
+    if(ch!=ERR){
+    currentDirection = ch;
+    }
+    */
+
+    // Move in inputed direction
+    if(currentDirection=='a'){
+        moveHead->xpos--;
+    }
+    if(currentDirection=='d'){
+        moveHead->xpos++;
+    }
+    if(currentDirection=='w'){
+        moveHead->ypos--;
+    }
+    if(currentDirection=='s'){
+        moveHead->ypos++;
+    }
+    
+    // Quit game if q is pressed
+    if(currentDirection=='q'){
+        running=0;
+    }
+
+    // Set the heap of the linked list to the new head we allocated
+    *head=moveHead;
+
+    return running;
+}
+
 void printReg(unsigned long long reg) {
     printf("Register value: 0x%llx\n", reg);
 }
 
 int32_t startGame(int32_t height, int32_t width){
-
-    printf("Loading Game...\n");
+    //                V   V   V  R,G,B Color values for text
+    printf("\033[38;2;255;255;0mGame Started! This is a development version without live input, enter a direction and then press enter to move\033[0m\n");
     
 
     //initscr(); // Initialize ncurses // uncomment for ncurses
@@ -442,55 +500,7 @@ int32_t startGame(int32_t height, int32_t width){
     // Start Game Loop
     while(running==1){
 
-        // Clear previous board
-        /* uncomment for ncurses (delete above clear method)
-        clear(); 
-        refresh();
-        */ 
-
-        // Create new Head
-        moveHead = createSnakePart();
-        head->forward=moveHead;
-        moveHead->backward=head;
-        moveHead->xpos=head->xpos;
-        moveHead->ypos=head->ypos;
-        
-        // Get input
-        ch = getInput();
-
-        system("clear");    // delete if using ncurses
-
-        // No input entered check
-        if(ch=='a'||ch=='d'||ch=='w'||ch=='s'||ch=='q'){
-            currentDirection = ch;
-        }
-        /* uncomment for ncurses and delete above
-        if(ch!=ERR){
-        currentDirection = ch;
-        }
-        */
-
-        // Move in inputed direction
-        if(currentDirection=='a'){
-            moveHead->xpos--;
-        }
-        if(currentDirection=='d'){
-            moveHead->xpos++;
-        }
-        if(currentDirection=='w'){
-            moveHead->ypos--;
-        }
-        if(currentDirection=='s'){
-            moveHead->ypos++;
-        }
-        
-        // Quit game if q is pressed
-        if(currentDirection=='q'){
-            running=0;
-        }
- 
-        // Set the heap of the linked list to the new head we allocated
-        head=moveHead;
+        running = moveHeadAndCheckQuit(&head, currentDirection);
 
         // If eating
         if(deathCheck(head->xpos, head->ypos, height, width, snakeChar, map)==1){
