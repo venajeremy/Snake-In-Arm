@@ -1,3 +1,5 @@
 *.core
 tmp/*
 !tmp/.gitkeep
+dist/*
+!dist/.gitkeep
