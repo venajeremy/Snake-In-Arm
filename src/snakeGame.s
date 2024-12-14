@@ -223,12 +223,13 @@ return1:
 moveHeadAndCheckQuitA:
     //Inputs:
     //x0: snakePart **head
-    //x1: int32_t currentDirection
+    //x1: int32_t *currentDirection
 
     //Variables:
     //x2: int32_t running
     //x3: snakePart *moveHead
     //x4: int32_t ch
+    //x12: int32_t currentDirection
 
     // running = 1
     mov x2, #1
@@ -320,8 +321,11 @@ moveHeadAndCheckQuitA:
 
     // Movement checks
 
+    // Last direction
+    ldr w12, [x1]
+
     // x4: ch   ( new user direction )
-    // x1: currentDireciton ( previous direction )
+    // x12: currentDireciton ( previous direction )
 
     /* ascii direciton key:
         'w' = 119
@@ -349,13 +353,13 @@ moveHeadAndCheckQuitA:
 
 updateCurrentDirection:
     // If we entered a valid input updatea the current direction (x1) to be the entered input(x4)
-    mov x1, x4
+    mov x12, x4
 
     b handleMovement
 
 handleMovement:
 
-    // move in the direction of currentDirection (x1) ( we already updated it if a valid input was entered )
+    // move in the direction of currentDirection (x12) ( we already updated it if a valid input was entered )
     
 
     /* ascii direciton key:
@@ -368,23 +372,23 @@ handleMovement:
     */
 
     // if(currentDirection=='a'):
-    cmp x1, #97
+    cmp x12, #97
     b.eq moveLeft
 
     // if(currentDirection=='d'):
-    cmp x1, #100
+    cmp x12, #100
     b.eq moveRight
 
     // if(currentDirection=='w'):
-    cmp x1, #119
+    cmp x12, #119
     b.eq moveUp
 
     // if(currentDirection=='s'): 
-    cmp x1, #115
+    cmp x12, #115
     b.eq moveDown
 
     // if(currentDirection=='q'):
-    cmp x1, #113
+    cmp x12, #113
     b.eq moveQuit
 
 
@@ -428,6 +432,9 @@ movementFinish:
     // *head=moveHead
     // Make head point to newhead
     str x3, [x0]
+
+    // update current direction
+    str w12, [x1]
 
     // return running
     mov x0, x2

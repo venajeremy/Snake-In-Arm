@@ -26,7 +26,7 @@ extern int32_t addNums(int a, int b);
 
 extern int32_t deathCheck(int xpos, int ypos, int width, int height, char snakeChar, char **map);
 
-extern int32_t moveHeadAndCheckQuitA(snakePart **head, int32_t currentDirection);
+extern int32_t moveHeadAndCheckQuitA(snakePart **head, int32_t *currentDirection);
 
 // -------------------------------- Start Menu -------------------------------- //
 #define MAX_NAME_LENGTH 50
@@ -390,7 +390,7 @@ void initializeSnake(snakePart **inHead, snakePart **inTail, char snakeChar, int
 }
 
 /*
-// Assembly
+// Moved to Assembly    I also had to change currentDirection to take a pointer
 int32_t moveHeadAndCheckQuit(snakePart **head, int32_t currentDirection){
     int32_t running=1;
 
@@ -504,7 +504,7 @@ int32_t startGame(int32_t height, int32_t width){
     // Start Game Loop
     while(running==1){
 
-        running = moveHeadAndCheckQuitA(&head, currentDirection);
+        running = moveHeadAndCheckQuitA(&head, &currentDirection);
 
         // If eating
         if(deathCheck(head->xpos, head->ypos, height, width, snakeChar, map)==1){
