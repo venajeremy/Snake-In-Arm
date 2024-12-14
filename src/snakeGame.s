@@ -18,6 +18,8 @@
 
 .global moveHeadAndCheckQuitA
 
+.global startGameA
+
 .text
 
 main:   
@@ -440,6 +442,216 @@ movementFinish:
     mov x0, x2
     ret
 
+startGameA:
+    // Inputs:
+    // x0: int32_t height
+    // x1: int32_t width
+
+    // srand(time(NULL))
+    stp x0, x1, [sp, #-16]!
+    stp x2, x30, [sp, #-16]!
+    mov x0, #0 // NULL
+    bl time
+    // x0 has return
+    bl srand
+    ldp x2, x30, [sp], #16
+    ldp x0, x1, [sp], #16
+
+    // Variables:
+    // x0: int32_t height
+    // x1: int32_t width
+    // x2: char **map
+    // x3: int32_t *key
+    // x4: int32_t *hand
+    // x5: int32_t snakeSize
+    // x6: char snakeChar
+    // x7: char foodChar
+    // x8: int32_t currentDirection
+    // x9: char running
+
+    // -------------------------- Game Customizable Variables -------------------------- //
+
+     // snakesize: SET HERE CAN CHANGE:
+    //       V
+    mov x5, #3
+
+    // snakechar: SET HERE CAN CHANGE:
+    //       V = '#'
+    mov x6, #35
+
+    // foodchar: SET HERE CAN CHANGE:
+    //       V = '@'
+    mov x7, #64
+
+    // currentdirection: SET HERE CAN CHANGE:
+    //       V = 'a' = to left
+    mov x8, #97
+
+    // -------------------------- Cont. -------------------------- //
+
+    // running: (cant really change this one)
+    mov x9, #1
+
+    // InitializeMap(&map, height, width);
+    stp x0, x1, [sp, #-16]!
+    stp x2, x3, [sp, #-16]!
+    stp x4, x5, [sp, #-16]!
+    stp x6, x7, [sp, #-16]!
+    stp x8, x9, [sp, #-16]!
+    stp x10, x30, [sp, #-16]!
+    
+    // initializeMap(&map, height, width)
+    ldr x0, =map
+    mov x1, x0
+    mov x2, x1
+
+    bl initializeMap
+
+    ldp x10, x30, [sp], #16
+    ldp x8, x9, [sp], #16
+    ldp x6, x7, [sp], #16
+    ldp x4, x5, [sp], #16
+    ldp x2, x3, [sp], #16
+    ldp x0, x1, [sp], #16
+
+
+    // Initialize Components for Placing Food
+    stp x0, x1, [sp, #-16]!
+    stp x2, x3, [sp, #-16]!
+    stp x4, x5, [sp, #-16]!
+    stp x6, x7, [sp, #-16]!
+    stp x8, x9, [sp, #-16]!
+    stp x10, x30, [sp, #-16]!
+    
+    // initializeKeyAndHand(&key, &hand, width, height)
+    mov x2, x1
+    mov x3, x0
+    ldr x0, =key
+    ldr x1, =hand
+
+    bl initializeKeyAndHand
+
+    ldp x10, x30, [sp], #16
+    ldp x8, x9, [sp], #16
+    ldp x6, x7, [sp], #16
+    ldp x4, x5, [sp], #16
+    ldp x2, x3, [sp], #16
+    ldp x0, x1, [sp], #16
+
+    
+    //snakePart *head = createSnakePart()
+    //snakePart *tail = createSnakePart()
+    stp x0, x1, [sp, #-16]!
+    stp x2, x3, [sp, #-16]!
+    stp x4, x5, [sp, #-16]!
+    stp x6, x7, [sp, #-16]!
+    stp x8, x9, [sp, #-16]!
+    stp x10, x30, [sp, #-16]!
+
+    bl createSnakePart
+    // x0: pointer to new snake part
+    ldr x1, =head
+    // store the new snakepart pointer in the head
+    str x0, [x1]
+
+    bl createSnakePart
+    // x0: pointer to new snake part
+    ldr x1, =tail
+    // store the new snakepart pointer in the tail
+    str x0, [x1]
+
+    ldp x10, x30, [sp], #16
+    ldp x8, x9, [sp], #16
+    ldp x6, x7, [sp], #16
+    ldp x4, x5, [sp], #16
+    ldp x2, x3, [sp], #16
+    ldp x0, x1, [sp], #16
+
+    // initializeSnake(&head, &tail, snakeChar, snakeSize, width, height, key, hand, map);
+    stp x0, x1, [sp, #-16]!
+    stp x2, x3, [sp, #-16]!
+    stp x4, x5, [sp, #-16]!
+    stp x6, x7, [sp, #-16]!
+    stp x8, x9, [sp, #-16]!
+    stp x10, x30, [sp, #-16]!
+    
+    mov x3, x5  // snakeSize
+    mov x4, x1  // width
+    mov x5, x0  // height
+
+    ldr x0, =head   //head
+    ldr x1, =tail   //tail
+    ldr x2, x6  // snakeChar
+
+    ldr x6, =key
+    ldr x6, [x6]
+
+    ldr x7, =hand
+    ldr x7, [x7]
+
+    ldr x8, =map
+    ldr x8, [x8]
+
+    bl initializeSnake
+
+    ldp x10, x30, [sp], #16
+    ldp x8, x9, [sp], #16
+    ldp x6, x7, [sp], #16
+    ldp x4, x5, [sp], #16
+    ldp x2, x3, [sp], #16
+    ldp x0, x1, [sp], #16
+
+    // Variables reminder:
+    // x0: int32_t height
+    // x1: int32_t width
+    // x2: char **map
+    // x3: int32_t *key
+    // x4: int32_t *hand
+    // x5: int32_t snakeSize
+    // x6: char snakeChar
+    // x7: char foodChar
+    // x8: int32_t currentDirection
+    // x9: char running
+
+    // placeFood(width, height, foodChar, map, key, hand, snakeSize);
+    stp x0, x1, [sp, #-16]!
+    stp x2, x3, [sp, #-16]!
+    stp x4, x5, [sp, #-16]!
+    stp x6, x7, [sp, #-16]!
+    stp x8, x9, [sp, #-16]!
+    stp x10, x30, [sp, #-16]!
+    
+    mov x15, x0
+
+    mov x0, x1  // width
+    mov x1, x15 // height
+    mov x2, x7    // foodchar
+    ldr x3, =map
+    ldr x3, [x3]    // map
+    ldr x4, =key
+    ldr x4, [x4]    // key
+    ldr x5, =hand
+    ldr x5, [x5]    // hand
+
+    
+
+
+    ldp x10, x30, [sp], #16
+    ldp x8, x9, [sp], #16
+    ldp x6, x7, [sp], #16
+    ldp x4, x5, [sp], #16
+    ldp x2, x3, [sp], #16
+    ldp x0, x1, [sp], #16
+
+
+   
+
+
+
+
+
+
+
 
 exit:
     //printStr "Exiting..."
@@ -453,4 +665,16 @@ exit:
 
 state: .fill 1, 1, 0
 clear: .asciz "clear"
+
+// Memory for Main Game Function
+map: .quad 0
+hand: .quad 0
+key: .quad 0
+head: .quad 0
+tail: .quad 0
+currentDirection: .word 0
+
+    
+
+
 

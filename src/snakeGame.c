@@ -24,9 +24,11 @@ extern void swapKeyValuesA(int32_t *key, int32_t *hand, int32_t pos1, int32_t po
 
 extern int32_t addNums(int a, int b);
 
-extern int32_t deathCheck(int xpos, int ypos, int width, int height, char snakeChar, char **map);
+extern int32_t deathCheck(int32_t xpos, int32_t ypos, int32_t width, int32_t height, char snakeChar, char **map);
 
 extern int32_t moveHeadAndCheckQuitA(snakePart **head, int32_t *currentDirection);
+
+extern int32_t startGameA(int32_t height, int32_t width);
 
 // -------------------------------- Start Menu -------------------------------- //
 #define MAX_NAME_LENGTH 50
@@ -390,7 +392,7 @@ void initializeSnake(snakePart **inHead, snakePart **inTail, char snakeChar, int
 }
 
 /*
-// Moved to Assembly    I also had to change currentDirection to take a pointer
+// Went to Assembly    I also had to change currentDirection to take a pointer
 int32_t moveHeadAndCheckQuit(snakePart **head, int32_t currentDirection){
     int32_t running=1;
 
@@ -455,6 +457,8 @@ void printReg(unsigned long long reg) {
 int32_t startGame(int32_t height, int32_t width){
     //                V   V   V  R,G,B Color values for text
     printf("\033[38;2;255;255;0mGame Started! This is a development version without live input, enter a direction and then press enter to move\033[0m\n");
+
+    //startGameA(height, width);
     
 
     //initscr(); // Initialize ncurses // uncomment for ncurses
@@ -494,8 +498,6 @@ int32_t startGame(int32_t height, int32_t width){
     
     
     // Create variables for game loop
-    snakePart *moveHead;    // Holds the forward moving head
-    int32_t ch;     // Stores new input
     int32_t currentDirection='a';   // Store current input
 
     // Game loop
