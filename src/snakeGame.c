@@ -232,6 +232,11 @@ char deathCheck(int xpos, int ypos, int width, int height, char snakeChar, char 
 }
 */
 
+void wipe(){
+    clear();
+    refresh();
+}
+
 // Stay in C
 int32_t getInput(){
     /* No Ncurses input
@@ -474,7 +479,7 @@ void printReg(unsigned long long reg) {
 int32_t startGame(int32_t height, int32_t width){
 
     //                V   V   V  R,G,B Color values for text
-    printf("\033[38;2;255;255;0mGame Started! This is a development version without live input, enter a direction and then press enter to move\033[0m\n");
+    printf("\033[38;2;255;0;0mGame Over!\033[0m\n");
 
     return startGameA(height, width);
 

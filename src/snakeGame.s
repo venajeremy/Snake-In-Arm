@@ -364,16 +364,18 @@ moveHeadAndCheckQuitA:
     stp x2, x3, [sp, #-16]!
     stp x4, x5, [sp, #-16]!
     stp x6, x7, [sp, #-16]!
-    stp x8, x30, [sp, #-16]!
+    stp x8, x9, [sp, #-16]!
+    stp x10, x30, [sp, #-16]!
     bl clear
     bl refresh
-    ldp x8, x30, [sp], #16
+    ldp x10, x30, [sp], #16
+    ldp x8, x9, [sp], #16
     ldp x6, x7, [sp], #16
     ldp x4, x5, [sp], #16
     ldp x2, x3, [sp], #16
     ldp x0, x1, [sp], #16
-    */
-
+    */ 
+    
     // Start comment for ncurses
     stp x0, x1, [sp, #-16]!
     stp x2, x3, [sp, #-16]!
@@ -382,9 +384,11 @@ moveHeadAndCheckQuitA:
     stp x8, x9, [sp, #-16]!
     stp x10, x30, [sp, #-16]!
 
-    ldr x0, =clear
+    bl wipe
+
+    //ldr x0, =clear
     // clear terminal
-    bl system;
+    //bl system;
     // we only save and load the other registers
     ldp x10, x30, [sp], #16
     ldp x8, x9, [sp], #16
@@ -393,7 +397,7 @@ moveHeadAndCheckQuitA:
     ldp x2, x3, [sp], #16
     ldp x0, x1, [sp], #16
     // End comment for ncurses
-
+    
 
     // Movement checks
 
@@ -518,6 +522,28 @@ movementFinish:
 
 
 startGameA:
+
+    // Wipe initialized data
+    mov x20, #0
+    
+    ldr x21, =map
+    str x20, [x21]
+
+    ldr x21, =key
+    str x20, [x21]
+
+    ldr x21, =hand
+    str x20, [x21]
+
+    ldr x21, =head
+    str x20, [x21]
+
+    ldr x21, =tail
+    str x20, [x21]
+
+    ldr x21, =currentDirection
+    str w20, [x21]
+
     // Inputs:
     // x0: int32_t height
     // x1: int32_t width
@@ -722,7 +748,7 @@ gameLoop:
     stp x2, x3, [sp, #-16]!
     stp x4, x5, [sp, #-16]!
     stp x6, x7, [sp, #-16]!
-    stp x11, x9, [sp, #-16]!
+    stp x11, x8, [sp, #-16]!
     stp x10, x30, [sp, #-16]!
 
     ldr x0, =head
@@ -734,7 +760,7 @@ gameLoop:
     mov x9, x0
 
     ldp x10, x30, [sp], #16
-    ldp x11, x9, [sp], #16
+    ldp x11, x8, [sp], #16
     ldp x6, x7, [sp], #16
     ldp x4, x5, [sp], #16
     ldp x2, x3, [sp], #16
