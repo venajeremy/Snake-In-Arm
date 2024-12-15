@@ -570,13 +570,13 @@ startGameA:
     ldr x8, =map
     ldr x8, [x8]
     
-    sub sp, sp, #8    // Reserve space on the stack for 9th argument an int32
-    str x8, [sp, #0]   // Store 9th argument at [sp]
+    sub sp, sp, #8  // Reserve space on the stack for 9th argument an int32
+    str x8, [sp, #0]    // Store 9th argument at [sp]
 
     bl initializeSnake
+
+    add sp, sp, #8  // Retrieve space   
     
-
-
     ldp x10, x30, [sp], #16
     ldp x8, x9, [sp], #16
     ldp x6, x7, [sp], #16
@@ -584,7 +584,7 @@ startGameA:
     ldp x2, x3, [sp], #16
     ldp x0, x1, [sp], #16
 
-/*
+
 
     // placeFood(width, height, foodChar, map, key, hand, snakeSize);
     stp x0, x1, [sp, #-16]!
@@ -615,12 +615,330 @@ startGameA:
     ldp x4, x5, [sp], #16
     ldp x2, x3, [sp], #16
     ldp x0, x1, [sp], #16
-
-*/
-    
+ 
     b gameLoop
 
 gameLoop:
+   
+
+    cmp x9, #1
+    b.ne cleanUpThenExit
+
+    // running = moveHeadAndCheckQuit
+
+    stp x0, x1, [sp, #-16]!
+    stp x2, x3, [sp, #-16]!
+    stp x4, x5, [sp, #-16]!
+    stp x6, x7, [sp, #-16]!
+    stp x11, x9, [sp, #-16]!
+    stp x10, x30, [sp, #-16]!
+    
+    ldr x0, =head
+
+    ldr x1, =currentDirection
+
+    bl moveHeadAndCheckQuitA
+
+    mov x8, x0
+
+    ldp x10, x30, [sp], #16
+    ldp x11, x9, [sp], #16
+    ldp x6, x7, [sp], #16
+    ldp x4, x5, [sp], #16
+    ldp x2, x3, [sp], #16
+    ldp x0, x1, [sp], #16
+
+    // deathCheck(head->xpos, head->ypos, height, width, snakeChar, map)==1
+
+    stp x0, x1, [sp, #-16]!
+    stp x2, x3, [sp, #-16]!
+    stp x4, x5, [sp, #-16]!
+    stp x6, x7, [sp, #-16]!
+    stp x8, x9, [sp, #-16]!
+    stp x10, x30, [sp, #-16]!
+    
+    mov x2, x0
+    mov x3, x1
+    mov x4, x6
+    ldr x5, =map
+    ldr x5, [x5]
+
+    ldr x0, =head
+    mov x1, #0
+    ldrsw x1, [x0, #4]
+    mov x3, #0
+    ldrsw x3, [x0]
+    mov x3, x0
+    
+    bl deathCheck
+
+    cmp x0, #1
+
+    b.eq died
+
+    ldp x10, x30, [sp], #16
+    ldp x8, x9, [sp], #16
+    ldp x6, x7, [sp], #16
+    ldp x4, x5, [sp], #16
+    ldp x2, x3, [sp], #16
+    ldp x0, x1, [sp], #16
+
+    // map[head=>ypos][head->xpos]==foodChar
+    ldr x11, =head
+    ldr x11, [x11]
+    mov x12, #0
+    ldrsw x12, [x11, #4]    // head->y
+    mov x13, #0
+    ldrsw x13, [x11]        
+    mov x11, x13            // head->x
+
+    ldr x13, =map
+    ldr x13, [x13, x12, lsl #3] // get map[y]
+    ldrb w13, [x13, x11]        // get map[y][x]
+
+    cmp x13, x7
+    b.eq ateFood
+
+    // normal move
+
+    mul x14, x12, x1
+    add x14, x14, x11   // pos1
+
+    ldr x17, =tail
+    ldr x17, [x17]
+    mov x18, #0
+    ldrsw x18, [x17]    // tail->y
+    mov x19, #0
+    ldrsw x19, [x17]
+    mov x17, x19    // tail->x
+
+    mul x15, x18, x1
+    add x15, x15, x17   // pos2
+
+    // swapKeyValuesA(key, hand, pos1, pos2)
+    stp x0, x1, [sp, #-16]!
+    stp x2, x3, [sp, #-16]!
+    stp x4, x5, [sp, #-16]!
+    stp x6, x7, [sp, #-16]!
+    stp x8, x9, [sp, #-16]!
+    stp x10, x30, [sp, #-16]!
+    stp x12, x11, [sp, #-16]!
+    stp x18, x17, [sp, #-16]!
+    
+    ldr x0, =key
+    ldr x0, [x0]
+
+    ldr x1, =hand
+    ldr x1, [x1]
+
+    mov x2, x14
+    mov x3, x15
+
+    bl swapKeyValuesA
+
+    ldp x18, x17, [sp], #16
+    ldp x12, x11, [sp], #16
+    ldp x10, x30, [sp], #16
+    ldp x8, x9, [sp], #16
+    ldp x6, x7, [sp], #16
+    ldp x4, x5, [sp], #16
+    ldp x2, x3, [sp], #16
+    ldp x0, x1, [sp], #16
+
+    
+
+    // Remove tail
+    ldr x20, =map
+    ldr x20, [x20]
+
+    ldr x21, [x20, x12, lsl #3]     //map[head->ypos]
+    strb w6, [x21, x11]        //map[head->ypos][head->xpos] = snakeChar
+
+    ldr x22, [x20, x18, lsl #3]      //map[tail->ypos]
+    mov x29, #32    // ' '
+    str x29, [x22, x17]         //map[tail->ypos][tail->xpos] = ' '
+   
+    // tail = tail->forward
+    ldr x20, =tail
+    ldr x21, [x20]  // 21: tail
+    str x20, [x21, #8]  // tail = tail->forward
+
+    // free(tail->backward)
+    stp x0, x1, [sp, #-16]!
+    stp x2, x3, [sp, #-16]!
+    stp x4, x5, [sp, #-16]!
+    stp x6, x7, [sp, #-16]!
+    stp x8, x9, [sp, #-16]!
+    stp x10, x30, [sp, #-16]!
+   
+    ldr x0, =tail
+    ldr x0, [x0, #16]   // x0: free
+
+    bl free
+
+    ldp x10, x30, [sp], #16
+    ldp x8, x9, [sp], #16
+    ldp x6, x7, [sp], #16
+    ldp x4, x5, [sp], #16
+    ldp x2, x3, [sp], #16
+    ldp x0, x1, [sp], #16
+
+    //tail->backward = null
+    ldr x20, =tail
+    mov x21, #0         // x21: NULL
+    str x21, [x20, #16]
+
+
+    b gameLoopCont
+
+ 
+ateFood:
+
+  
+
+    // pos1 = (head->ypos*width) + head->xpos
+    ldr x20, =head
+    ldr x20, [x20]
+    mov x21, #0
+    ldrsw x21, [x20, #4]    //head->xpos
+    mov x22, #0
+    ldrsw x22, [x20]
+    mov x20, x22            //head->ypos
+
+    mul x22, x20, x1
+    add x22, x22, x21   //pos1
+
+    // pos2 = hand[(width*height)-snakeSize-1];
+    mul x23, x0, x1    // with*height
+    sub x23, x23, x5    // with*height -snakesize
+    sub x23, x23, #1    // pos2 = with*height -snakesize-1
+
+    // swapKeyValuesA(key, hand, pos1, pos2)
+    stp x0, x1, [sp, #-16]!
+    stp x2, x3, [sp, #-16]!
+    stp x4, x5, [sp, #-16]!
+    stp x6, x7, [sp, #-16]!
+    stp x8, x9, [sp, #-16]!
+    stp x10, x30, [sp, #-16]!
+   
+    ldr x0, =key
+    ldr x0, [x0]
+
+    ldr x1, =hand
+    ldr x1, [x1]
+
+    mov x2, x22 //pos 1
+    mov x3, x23 //pos 2
+
+    bl swapKeyValuesA
+
+    ldp x10, x30, [sp], #16
+    ldp x8, x9, [sp], #16
+    ldp x6, x7, [sp], #16
+    ldp x4, x5, [sp], #16
+    ldp x2, x3, [sp], #16
+    ldp x0, x1, [sp], #16
+
+    // map[head->ypos][head->xpos] = snakeChar;
+    ldr x11, =head
+    ldr x11, [x11]
+    
+    mov x12, #0
+    ldrsw x12, [x11, #4] // head->xpos
+    mov x13, #0
+    ldrsw x13, [x11] //head->ypos
+
+    ldr x11, =map
+    ldr x11, [x11, x13, lsl #3] // map[head->ypos]
+    str x6, [x11, x12]  // map[head->ypos][head->xpos] = snakechar
+
+    // placeFood(width, height, foodChar, map, key, hand, snakeSize)
+    stp x0, x1, [sp, #-16]!
+    stp x2, x3, [sp, #-16]!
+    stp x4, x5, [sp, #-16]!
+    stp x6, x7, [sp, #-16]!
+    stp x8, x9, [sp, #-16]!
+    stp x10, x30, [sp, #-16]!
+
+    mov x15, x0
+    mov x0, x1
+    mov x1, x15
+
+    mov x2, x7
+
+    ldr x3, =map
+    ldr x3, [x3]
+
+    ldr x4, =key
+    ldr x4, [x4]
+
+    mov x6, x5
+
+    ldr x5, =hand
+    ldr x5, [x5] 
+
+    bl placeFood
+
+    ldp x10, x30, [sp], #16
+    ldp x8, x9, [sp], #16
+    ldp x6, x7, [sp], #16
+    ldp x4, x5, [sp], #16
+    ldp x2, x3, [sp], #16
+    ldp x0, x1, [sp], #16
+
+
+    b gameLoopCont
+
+died:
+
+    mov x9, #0
+
+    ldp x10, x30, [sp], #16
+    ldp x8, x11, [sp], #16
+    ldp x6, x7, [sp], #16
+    ldp x4, x5, [sp], #16
+    ldp x2, x3, [sp], #16
+    ldp x0, x1, [sp], #16
+
+    b gameLoopCont
+
+gameLoopCont:
+
+    // printBoard(width, height, map)
+    stp x0, x1, [sp, #-16]!
+    stp x2, x3, [sp, #-16]!
+    stp x4, x5, [sp, #-16]!
+    stp x6, x7, [sp, #-16]!
+    stp x8, x9, [sp, #-16]!
+    stp x10, x30, [sp, #-16]!
+
+    mov x15, x0
+    mov x0, x1
+    mov x1, x15
+    ldr x2, =map
+    ldr x2, [x2]
+
+    bl printBoard
+
+    
+
+    // usleep(250000)
+    mov x0, 0x3d0
+    lsl x0, x0, #8
+    movk x0, 0x90   // 250000
+
+    bl usleep
+
+    ldp x10, x30, [sp], #16
+    ldp x8, x9, [sp], #16
+    ldp x6, x7, [sp], #16
+    ldp x4, x5, [sp], #16
+    ldp x2, x3, [sp], #16
+    ldp x0, x1, [sp], #16
+
+    b gameLoop
+
+cleanUpThenExit:
     // Variables reminder:
     // x0: int32_t height
     // x1: int32_t width
@@ -633,16 +951,37 @@ gameLoop:
     // x8: int32_t currentDirection
     // x9: char running
 
+    // printBoard(width, height, map)
+    stp x0, x1, [sp, #-16]!
+    stp x2, x3, [sp, #-16]!
+    stp x4, x5, [sp, #-16]!
+    stp x6, x7, [sp, #-16]!
+    stp x8, x9, [sp, #-16]!
+    stp x10, x30, [sp, #-16]!
 
-    b cleanUpThenExit
-    
+    mov x2, x0
 
+    ldr x0, =head
 
-cleanUpThenExit:
-    
+    ldr x1, =map
 
+    ldr x3, =hand
 
-    b exit
+    ldr x4, =key
+
+    bl cleanUpA
+
+    ldp x10, x30, [sp], #16
+    ldp x8, x9, [sp], #16
+    ldp x6, x7, [sp], #16
+    ldp x4, x5, [sp], #16
+    ldp x2, x3, [sp], #16
+    ldp x0, x1, [sp], #16
+
+    mov x1, #100
+    mul x0, x5, x1   // return snakeSize * 100
+
+    ret
 
 
 
