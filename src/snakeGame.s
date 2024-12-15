@@ -718,13 +718,15 @@ gameLoop:
 
     // normal move
 
+
+
     mul x14, x12, x1
     add x14, x14, x11   // pos1
 
     ldr x17, =tail
     ldr x17, [x17]
     mov x18, #0
-    ldrsw x18, [x17]    // tail->y
+    ldrsw x18, [x17, #4]    // tail->y
     mov x19, #0
     ldrsw x19, [x17]
     mov x17, x19    // tail->x
@@ -751,7 +753,7 @@ gameLoop:
     mov x2, x14
     mov x3, x15
 
-    bl swapKeyValues
+    bl swapKeyValuesA
 
     ldp x18, x17, [sp], #16
     ldp x12, x11, [sp], #16
@@ -846,18 +848,25 @@ ateFood:
     ldr x20, =head
     ldr x20, [x20]
     mov x21, #0
-    ldrsw x21, [x20, #4]    //head->xpos
+    ldrsw x21, [x20]    //head->xpos
     mov x22, #0
-    ldrsw x22, [x20]
+    ldrsw x22, [x20, #4]
+    mov x20, #0
     mov x20, x22            //head->ypos
 
+    mov x22, #0
     mul x22, x20, x1
     add x22, x22, x21   //pos1
 
     // pos2 = hand[(width*height)-snakeSize-1];
     mul x23, x0, x1    // with*height
     sub x23, x23, x5    // with*height -snakesize
-    sub x23, x23, #1    // pos2 = with*height -snakesize-1
+    sub x23, x23, #1    // with*height -snakesize-1
+
+    ldr x24, =hand
+    ldr x24, [x24]
+
+    ldrsw x24, [x24, x23, lsl #2]   // pos 2
 
     // swapKeyValuesA(key, hand, pos1, pos2)
     stp x0, x1, [sp, #-16]!
@@ -874,9 +883,9 @@ ateFood:
     ldr x1, [x1]
 
     mov x2, x22 //pos 1
-    mov x3, x23 //pos 2
+    mov x3, x24 //pos 2
 
-    bl swapKeyValues
+    bl swapKeyValuesA
 
     ldp x10, x30, [sp], #16
     ldp x8, x9, [sp], #16
@@ -894,13 +903,14 @@ ateFood:
     ldr x11, [x11]
     
     mov x12, #0
-    ldrsw x12, [x11, #4] // head->xpos
+    ldrsw x12, [x11] // head->xpos
     mov x13, #0
-    ldrsw x13, [x11] //head->ypos
+    ldrsw x13, [x11, #4] //head->ypos
 
     ldr x11, =map
+    ldr x11, [x11]
     ldr x11, [x11, x13, lsl #3] // map[head->ypos]
-    str x6, [x11, x12]  // map[head->ypos][head->xpos] = snakechar
+    strb w6, [x11, x12]  // map[head->ypos][head->xpos] = snakechar
 
     // placeFood(width, height, foodChar, map, key, hand, snakeSize)
     stp x0, x1, [sp, #-16]!
