@@ -469,6 +469,8 @@ startGameA:
     // x8: int32_t currentDirection
     // x9: char running
 
+    
+
     // -------------------------- Game Customizable Variables -------------------------- //
 
      // snakesize: SET HERE CAN CHANGE:
@@ -501,9 +503,10 @@ startGameA:
     stp x10, x30, [sp, #-16]!
     
     // initializeMap(&map, height, width)
-    ldr x0, =map
-    mov x1, x0
     mov x2, x1
+    mov x1, x0
+    ldr x0, =map
+    
 
     bl initializeMap
 
@@ -514,6 +517,7 @@ startGameA:
     ldp x2, x3, [sp], #16
     ldp x0, x1, [sp], #16
 
+    
 
     // Initialize Components for Placing Food
     stp x0, x1, [sp, #-16]!
@@ -538,36 +542,8 @@ startGameA:
     ldp x2, x3, [sp], #16
     ldp x0, x1, [sp], #16
 
-    
-    //snakePart *head = createSnakePart()
-    //snakePart *tail = createSnakePart()
-    stp x0, x1, [sp, #-16]!
-    stp x2, x3, [sp, #-16]!
-    stp x4, x5, [sp, #-16]!
-    stp x6, x7, [sp, #-16]!
-    stp x8, x9, [sp, #-16]!
-    stp x10, x30, [sp, #-16]!
 
-    bl createSnakePart
-    // x0: pointer to new snake part
-    ldr x1, =head
-    // store the new snakepart pointer in the head
-    str x0, [x1]
-
-    bl createSnakePart
-    // x0: pointer to new snake part
-    ldr x1, =tail
-    // store the new snakepart pointer in the tail
-    str x0, [x1]
-
-    ldp x10, x30, [sp], #16
-    ldp x8, x9, [sp], #16
-    ldp x6, x7, [sp], #16
-    ldp x4, x5, [sp], #16
-    ldp x2, x3, [sp], #16
-    ldp x0, x1, [sp], #16
-
-    // initializeSnake(&head, &tail, snakeChar, snakeSize, width, height, key, hand, map);
+    // initializeSnake(snakePart **inHead, snakePart **inTail,  char **map, int32_t *key, int32_t *hand, char snakeChar, int32_t snakeSize, int32_t width, int32_t height)
     stp x0, x1, [sp, #-16]!
     stp x2, x3, [sp, #-16]!
     stp x4, x5, [sp, #-16]!
@@ -575,24 +551,44 @@ startGameA:
     stp x8, x9, [sp, #-16]!
     stp x10, x30, [sp, #-16]!
     
-    mov x3, x5  // snakeSize
-    mov x4, x1  // width
-    mov x5, x0  // height
+    /*
+    mov x15, x0
+    mov x0, x1
+    mov x1, x15
+    
+    ldr x2, =map
+    ldr x2, [x2]
+    
+    bl printBoard
+    
+    */
+    mov x15, x5
+    mov x5, x6  // snakeChar
+    mov x6, x15  // snakeSize
+    mov x7, x1  // width
+    mov x8, x0  // height
+    
+    sub sp, sp, #4    // Reserve space on the stack for 9th argument an int32
+    str x8, [sp, #0]   // Store 9th argument at [sp]
 
     ldr x0, =head   //head
     ldr x1, =tail   //tail
-    ldr x2, x6  // snakeChar
+    
 
-    ldr x6, =key
-    ldr x6, [x6]
 
-    ldr x7, =hand
-    ldr x7, [x7]
+    
+    ldr x3, =key
+    ldr x3, [x3]
 
-    ldr x8, =map
-    ldr x8, [x8]
+    ldr x4, =hand
+    ldr x4, [x4]
+
+    ldr x2, =map
+    ldr x2, [x2]
 
     bl initializeSnake
+    
+
 
     ldp x10, x30, [sp], #16
     ldp x8, x9, [sp], #16
@@ -601,17 +597,7 @@ startGameA:
     ldp x2, x3, [sp], #16
     ldp x0, x1, [sp], #16
 
-    // Variables reminder:
-    // x0: int32_t height
-    // x1: int32_t width
-    // x2: char **map
-    // x3: int32_t *key
-    // x4: int32_t *hand
-    // x5: int32_t snakeSize
-    // x6: char snakeChar
-    // x7: char foodChar
-    // x8: int32_t currentDirection
-    // x9: char running
+/*
 
     // placeFood(width, height, foodChar, map, key, hand, snakeSize);
     stp x0, x1, [sp, #-16]!
@@ -630,11 +616,11 @@ startGameA:
     ldr x3, [x3]    // map
     ldr x4, =key
     ldr x4, [x4]    // key
+    mov x6, x5      // snakeSize
     ldr x5, =hand
     ldr x5, [x5]    // hand
 
-    
-
+    bl placeFood
 
     ldp x10, x30, [sp], #16
     ldp x8, x9, [sp], #16
@@ -643,13 +629,33 @@ startGameA:
     ldp x2, x3, [sp], #16
     ldp x0, x1, [sp], #16
 
+*/
+    
+    b gameLoop
 
-   
+gameLoop:
+    // Variables reminder:
+    // x0: int32_t height
+    // x1: int32_t width
+    // x2: char **map
+    // x3: int32_t *key
+    // x4: int32_t *hand
+    // x5: int32_t snakeSize
+    // x6: char snakeChar
+    // x7: char foodChar
+    // x8: int32_t currentDirection
+    // x9: char running
 
 
+    b cleanUpThenExit
+    
 
 
+cleanUpThenExit:
+    
 
+
+    b exit
 
 
 
@@ -668,8 +674,8 @@ clear: .asciz "clear"
 
 // Memory for Main Game Function
 map: .quad 0
-hand: .quad 0
 key: .quad 0
+hand: .quad 0
 head: .quad 0
 tail: .quad 0
 currentDirection: .word 0

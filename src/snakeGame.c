@@ -245,6 +245,7 @@ int32_t getInput(){
 
 // Stay in C
 void printBoard(int32_t boardWidth, int32_t boardHeight, char **map){
+
     for(int32_t i = 0 ; i < boardWidth ; i++){
         printf(" o");
     }
@@ -299,6 +300,7 @@ void swapKeyValues(int32_t *key, int32_t *hand, int32_t pos1, int32_t pos2){
 
 // Stay in C
 void initializeMap(char ***map, int32_t height, int32_t width){
+	printf("Initializing map (%d, %d)\n", height, width);
 
     *map = (char**) malloc(sizeof(char*) * height);   // Allocate rows of 2d Array
 
@@ -313,6 +315,8 @@ void initializeMap(char ***map, int32_t height, int32_t width){
 
 // Stay in C
 void initializeKeyAndHand(int32_t **key, int32_t **hand, int32_t width, int32_t height){
+	printf("Initializing key and hand (%d, %d)\n", height, width);
+
     // Initialize arrays for placing food
     (*key) = (int32_t*) malloc(sizeof(int32_t) * width * height);     // Used to hold the location of a food position in the hand
 
@@ -356,8 +360,21 @@ void cleanUp(snakePart **head, char ***map, int32_t height, int32_t **hand, int3
 */
 
 // Assembly
-void initializeSnake(snakePart **inHead, snakePart **inTail, char snakeChar, int32_t snakeSize, int32_t width, int32_t height, int *key, int *hand, char **map){
-    *inHead = createSnakePart();
+void initializeSnake(snakePart **inHead, snakePart **inTail,  char **map, int32_t *key, int32_t *hand, char snakeChar, int32_t snakeSize, int32_t width, int32_t height){
+
+	printf("Initializing Snake\n");
+	printf("%c, %d, %d, %d \n", snakeChar, snakeSize, width, height);
+	printf("inhead: %p \n", inHead);
+	printf("intail: %p \n", inTail);
+	printf("key: %p, %d\n", key, key[3]);
+	printf("hand: %p, %d \n", hand, hand[3]);
+	printf("map: %p\n",map);
+	printf("map[2]: %p\n", map[2]);
+	printf("map[2][2]: \"%c\"\n", map[2][2]);
+	
+	
+
+    (*inHead) = createSnakePart();
 
     (*inHead)->xpos = width/2;
     (*inHead)->ypos = height/2;
@@ -370,6 +387,7 @@ void initializeSnake(snakePart **inHead, snakePart **inTail, char snakeChar, int
         tmp->xpos = (width/2)+i;
         tmp->ypos = (height/2);
     }
+ 	
     *inTail = createSnakePart();
     (*inTail)->forward = tmp;
     tmp->backward = *inTail;
@@ -377,14 +395,19 @@ void initializeSnake(snakePart **inHead, snakePart **inTail, char snakeChar, int
     (*inTail)->xpos = (width/2)+snakeSize-1;
     (*inTail)->ypos = (height/2);
 
+	
      // Paint snake onto map
     tmp = *inHead;
     int32_t i=1;
+   
     while(tmp!=NULL){
-        swapKeyValuesA(key, hand, (tmp->ypos*width)+tmp->xpos, width*height-i);  // Add new part to correct postion of key and hand
-        map[tmp->ypos][tmp->xpos]=snakeChar;    // Paint32_t the snake character onto the map
+    	
+    	printf("key: %p, hand: %p, pos1: %d, pos2: %d\n",key, hand, ((tmp->ypos)*width)+(tmp->xpos), width*height-i);
+        //swapKeyValuesA(key, hand, ((tmp->ypos)*width)+(tmp->xpos), width*height-i);  // Add new part to correct postion of key and hand
+        //map[tmp->ypos][tmp->xpos]=snakeChar;    // Paint32_t the snake character onto the map
         tmp=tmp->backward;
         i++;
+        printf("hit7\n");
     }
 
 
@@ -458,7 +481,7 @@ int32_t startGame(int32_t height, int32_t width){
     //                V   V   V  R,G,B Color values for text
     printf("\033[38;2;255;255;0mGame Started! This is a development version without live input, enter a direction and then press enter to move\033[0m\n");
 
-    //startGameA(height, width);
+    return startGameA(height, width);
     
 
     //initscr(); // Initialize ncurses // uncomment for ncurses
@@ -482,10 +505,10 @@ int32_t startGame(int32_t height, int32_t width){
     int32_t snakeSize=3;
     char snakeChar = '#';
     
-    snakePart *head = createSnakePart();
-    snakePart *tail = createSnakePart();
+    snakePart *head;
+    snakePart *tail;
    
-    initializeSnake(&head, &tail, snakeChar, snakeSize, width, height, key, hand, map);
+    initializeSnake(&head, &tail, map, key, hand, snakeChar, snakeSize, width, height);
 
     // ---------------------- Place First Food ----------------------- //
 
