@@ -24,7 +24,7 @@ extern void swapKeyValuesA(int32_t *key, int32_t *hand, int32_t pos1, int32_t po
 
 extern int32_t addNums(int a, int b);
 
-extern int32_t deathCheck(int32_t xpos, int32_t ypos, int32_t width, int32_t height, char snakeChar, char **map);
+extern int32_t deathCheckA(int32_t xpos, int32_t ypos, int32_t width, int32_t height, char snakeChar, char **map);
 
 extern int32_t moveHeadAndCheckQuitA(snakePart **head, int32_t *currentDirection);
 
@@ -216,9 +216,9 @@ snakePart* createSnakePart(){
 }
 
 // Assembly
-/*
-char deathCheck(int xpos, int ypos, int width, int height, char snakeChar, char **map){
 
+char deathCheck(int xpos, int ypos, int width, int height, char snakeChar, char **map){
+    printf("xpos: %d, ypos: %d, width: %d, height: %d, snakeChar %d, map: \"%c\"\n", xpos, ypos, width, height, snakeChar, map[2][2]);
     if( xpos < 0 || xpos > width-1 || ypos < 0 || ypos > height-1 ){
         return 1;
     } else if( map[ypos][xpos] == snakeChar ){
@@ -227,7 +227,7 @@ char deathCheck(int xpos, int ypos, int width, int height, char snakeChar, char 
         return 0;
     }
 }
-*/
+
 // Stay in C
 int32_t getInput(){
     int32_t input;
@@ -283,9 +283,10 @@ void placeFood(int32_t boardWidth, int32_t boardHeight, char foodChar, char **gr
     return;
 }
 
-/*
+
 // Assembly
 void swapKeyValues(int32_t *key, int32_t *hand, int32_t pos1, int32_t pos2){
+    printf("key: %d, hand: %d, pos1: %d, pos2: %d\n", key[3], hand[3], pos1, pos2);
    int32_t location1 = key[pos1];
    int32_t location2 = key[pos2];
    hand[location1] = pos2;
@@ -294,7 +295,7 @@ void swapKeyValues(int32_t *key, int32_t *hand, int32_t pos1, int32_t pos2){
    key[pos2] = location1;
    return;
 }
-*/
+
 
 
 // Stay in C

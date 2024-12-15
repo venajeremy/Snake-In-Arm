@@ -14,7 +14,7 @@
 
 .global swapKeyValuesA
 
-.global deathCheck
+.global deathCheckA
 
 .global moveHeadAndCheckQuitA
 
@@ -193,7 +193,7 @@ addNums:
 return:
     ret
 
-deathCheck:
+deathCheckA:
     cmp x0, 0                   // xpos < 0
     blt return1
     
@@ -619,6 +619,18 @@ startGameA:
     b gameLoop
 
 gameLoop:
+
+    // Variables reminder:
+    // x0: int32_t height
+    // x1: int32_t width
+    // x2: char **map
+    // x3: int32_t *key
+    // x4: int32_t *hand
+    // x5: int32_t snakeSize
+    // x6: char snakeChar
+    // x7: char foodChar
+    // x8: int32_t currentDirection
+    // x9: char running
    
 
     cmp x9, #1
@@ -639,7 +651,7 @@ gameLoop:
 
     bl moveHeadAndCheckQuitA
 
-    mov x8, x0
+    mov x9, x0
 
     ldp x10, x30, [sp], #16
     ldp x11, x9, [sp], #16
@@ -664,13 +676,14 @@ gameLoop:
     ldr x5, [x5]
 
     ldr x0, =head
+    ldr x0, [x0]
     mov x1, #0
     ldrsw x1, [x0, #4]
-    mov x3, #0
-    ldrsw x3, [x0]
-    mov x3, x0
+    mov x6, #0
+    ldrsw x6, [x0]
+    mov x0, x6
     
-    bl deathCheck
+    bl deathCheckA
 
     cmp x0, #1
 
@@ -692,9 +705,15 @@ gameLoop:
     ldrsw x13, [x11]        
     mov x11, x13            // head->x
 
+
     ldr x13, =map
+    ldr x13, [x13]
     ldr x13, [x13, x12, lsl #3] // get map[y]
+
     ldrb w13, [x13, x11]        // get map[y][x]
+
+
+
 
     cmp x13, x7
     b.eq ateFood
@@ -734,7 +753,7 @@ gameLoop:
     mov x2, x14
     mov x3, x15
 
-    bl swapKeyValuesA
+    bl swapKeyValues
 
     ldp x18, x17, [sp], #16
     ldp x12, x11, [sp], #16
@@ -748,6 +767,15 @@ gameLoop:
     
 
     // Remove tail
+
+    ldr x11, =head
+    ldr x11, [x11]
+    mov x12, #0
+    ldrsw x12, [x11, #4]    // head->y
+    mov x13, #0
+    ldrsw x13, [x11]        
+    mov x11, x13            // head->x
+
     ldr x20, =map
     ldr x20, [x20]
 
@@ -794,8 +822,6 @@ gameLoop:
  
 ateFood:
 
-  
-
     // pos1 = (head->ypos*width) + head->xpos
     ldr x20, =head
     ldr x20, [x20]
@@ -830,7 +856,7 @@ ateFood:
     mov x2, x22 //pos 1
     mov x3, x23 //pos 2
 
-    bl swapKeyValuesA
+    bl swapKeyValues
 
     ldp x10, x30, [sp], #16
     ldp x8, x9, [sp], #16
@@ -838,6 +864,10 @@ ateFood:
     ldp x4, x5, [sp], #16
     ldp x2, x3, [sp], #16
     ldp x0, x1, [sp], #16
+
+    //snakeSize++
+    add x5, x5, #1
+
 
     // map[head->ypos][head->xpos] = snakeChar;
     ldr x11, =head
@@ -939,17 +969,6 @@ gameLoopCont:
     b gameLoop
 
 cleanUpThenExit:
-    // Variables reminder:
-    // x0: int32_t height
-    // x1: int32_t width
-    // x2: char **map
-    // x3: int32_t *key
-    // x4: int32_t *hand
-    // x5: int32_t snakeSize
-    // x6: char snakeChar
-    // x7: char foodChar
-    // x8: int32_t currentDirection
-    // x9: char running
 
     // printBoard(width, height, map)
     stp x0, x1, [sp, #-16]!
@@ -980,6 +999,7 @@ cleanUpThenExit:
 
     mov x1, #100
     mul x0, x5, x1   // return snakeSize * 100
+
 
     ret
 
