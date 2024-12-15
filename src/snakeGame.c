@@ -2,7 +2,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-//#include <ncurses.h> uncomment for ncurses
+#include <ncurses.h>
 #include <unistd.h>
 #include <time.h>
 
@@ -234,17 +234,18 @@ char deathCheck(int xpos, int ypos, int width, int height, char snakeChar, char 
 
 // Stay in C
 int32_t getInput(){
+    /* No Ncurses input
     int32_t input;
     input = getchar();
     while(getchar() != '\n');
     return input;
-
-    /* uncomment for ncurses
+    */
+    
     int32_t input = getch();
     while(getch()!=ERR){
     }
+
     return input;
-    */
 }
 
 // Stay in C
