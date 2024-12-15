@@ -16,6 +16,8 @@
 
 .global moveHeadAndCheckQuitA
 
+.global placeFoodA
+
 .global startGameA
 
 .text
@@ -154,7 +156,68 @@ cleanUpA_deleteMapLoop:
     add x8, x8, 1
  
     b cleanUpA_deleteMapLoop
+    
+placeFoodA:
+    //x0 = int32_t boardWidth
+    //x1 = int32_t boardHeight
+    //x2 = char foodChar
+    //x3 = char **graph
+    //x4 = int32_t *key
+    //x5 = int32_t *hand
+    //x6 = int32_t snakeSize
+    
+    stp x30, x0, [sp, #-16]!
+    stp x1, x2, [sp, #-16]!
+    stp x3, x4, [sp, #-16]!
+    stp x5, x6, [sp, #-16]!
 
+    bl getRand
+    mov w7, w0 //x7 = randNum
+    
+    ldp x5, x6, [sp], #16
+    ldp x3, x4, [sp], #16
+    ldp x1, x2, [sp], #16
+    ldp x30, x0, [sp], #16
+
+    //x9 = position
+    mul w8, w0, w1    // w*h
+    sub x8, x8, x6    // (w*h) - s
+    sub x8, x8, #1    // (w*h) - s -1
+    udiv x9, x7, x8   // r/((w*h) - s -1)
+    mul x13, x9, x8    // x9 = r - ( ((r / (w*h - s)))  *  ((w*h) - s) )
+    sub x9, x7, x13
+    
+    //x10 = hand[position]
+    //mov x0, x9
+    //bl printReg
+
+    ldrsw x10, [x5, x9, lsl #2]
+
+    //mov x0, x10
+    //bl printReg
+    
+    //x11 = y
+    udiv x11, x10, x0
+    
+    //mov x0, x11
+    //bl printReg
+
+    //x12 = x
+    udiv x12, x10, x0
+    mul x13, x12, x0    
+    sub x12, x10, x13
+    
+    //mov x0, x12
+    //bl printReg
+    
+    //graph[y][x]
+    ldr x15, [x3, x11, lsl #3]
+    
+    //ldr x16, [x15, x12, lsl #3]
+    
+    strb w2, [x15, x12]
+
+    ret
 
 swapKeyValuesA:
     // x0: int32_t *key
@@ -187,9 +250,9 @@ addNums:
     add x0, x0, x1
     ret
 
-
 return:
     ret
+
 
 deathCheckA:
     cmp x0, 0                   // xpos < 0
@@ -605,7 +668,7 @@ startGameA:
     ldr x5, =hand
     ldr x5, [x5]    // hand
 
-    bl placeFood
+    bl placeFoodA
 
     ldp x10, x30, [sp], #16
     ldp x8, x9, [sp], #16
@@ -937,7 +1000,7 @@ ateFood:
     ldr x5, =hand
     ldr x5, [x5] 
 
-    bl placeFood
+    bl placeFoodA
 
     ldp x10, x30, [sp], #16
     ldp x8, x9, [sp], #16
@@ -1033,14 +1096,12 @@ cleanUpThenExit:
 
     ret
 
-
-
 exit:
     //printStr "Exiting..."
-    // Setup the parameters to exit the program
-    // and then call Linux to do it.
-    mov     X0, #0      // Use 0 return code
-    mov     X8, #93     // Service command code 93 terminates this program
+// Setup the parameters to exit the program
+// and then call Linux to do it.
+	mov     X0, #0      // Use 0 return code
+    mov     X8, #93      // Service command code 93 terminates this program
     svc     0           // Call linux to terminate the program
 
 .data

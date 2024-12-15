@@ -18,15 +18,17 @@ typedef struct snakeP{
 
 // -------------------------------- Aarch64 Functions -------------------------------- //
 
+extern int32_t addNums(int32_t a, int32_t b);
+
 extern void cleanUpA(snakePart **head, char ***map, int32_t height, int32_t **hand, int32_t **key);
 
 extern void swapKeyValuesA(int32_t *key, int32_t *hand, int32_t pos1, int32_t pos2);
 
-extern int32_t addNums(int a, int b);
-
 extern int32_t deathCheckA(int32_t xpos, int32_t ypos, int32_t width, int32_t height, char snakeChar, char **map);
 
 extern int32_t moveHeadAndCheckQuitA(snakePart **head, int32_t *currentDirection);
+
+extern void placeFoodA(int32_t boardWidth, int32_t boardHeight, char foodChar, char **graph, int32_t *key, int32_t *hand, int32_t snakeSize);
 
 extern int32_t startGameA(int32_t height, int32_t width);
 
@@ -216,7 +218,7 @@ snakePart* createSnakePart(){
 }
 
 // Assembly
-
+/*
 char deathCheck(int xpos, int ypos, int width, int height, char snakeChar, char **map){
     printf("xpos: %d, ypos: %d, width: %d, height: %d, snakeChar %d, map: \"%c\"\n", xpos, ypos, width, height, snakeChar, map[2][2]);
     if( xpos < 0 || xpos > width-1 || ypos < 0 || ypos > height-1 ){
@@ -226,7 +228,9 @@ char deathCheck(int xpos, int ypos, int width, int height, char snakeChar, char 
     } else {
         return 0;
     }
+
 }
+*/
 
 // Stay in C
 int32_t getInput(){
@@ -265,10 +269,14 @@ void printBoard(int32_t boardWidth, int32_t boardHeight, char **map){
 }
 
 int32_t getRand(){
-    return rand();
+    int32_t x = rand();
+    //printf("%d",x );
+    return x;
 }
 
+
 // Assembly
+/*
 void placeFood(int32_t boardWidth, int32_t boardHeight, char foodChar, char **graph, int32_t *key, int32_t *hand, int32_t snakeSize){
 
     // Get a valid position to place our food ( -snakeSize are all the positions of the snake )
@@ -282,6 +290,7 @@ void placeFood(int32_t boardWidth, int32_t boardHeight, char foodChar, char **gr
     
     return;
 }
+*/
 
 
 // Assembly
@@ -358,7 +367,6 @@ void cleanUp(snakePart **head, char ***map, int32_t height, int32_t **hand, int3
 }
 */
 
-// Assembly
 void initializeSnake(snakePart **inHead, snakePart **inTail, char snakeChar, int32_t snakeSize, int32_t width, int32_t height, int *key, int *hand, char **map){
 
     *inHead = createSnakePart();
@@ -456,15 +464,17 @@ int32_t moveHeadAndCheckQuit(snakePart **head, int32_t currentDirection){
 
 void printReg(unsigned long long reg) {
     printf("Register value: 0x%llx\n", reg);
+    //return;
 }
 
 int32_t startGame(int32_t height, int32_t width){
+
     //                V   V   V  R,G,B Color values for text
     printf("\033[38;2;255;255;0mGame Started! This is a development version without live input, enter a direction and then press enter to move\033[0m\n");
 
     return startGameA(height, width);
-    
 
+    /*
     //initscr(); // Initialize ncurses // uncomment for ncurses
     //timeout(0); // uncomment for ncurses
     srand(time(NULL));  // Initialize random number generator
@@ -494,12 +504,12 @@ int32_t startGame(int32_t height, int32_t width){
     // ---------------------- Place First Food ----------------------- //
 
     char foodChar = '@';
-
+    //printf("ping");
     // Place the first food on the map
-    placeFood(width, height, foodChar, map, key, hand, snakeSize);
+    placeFoodA(width, height, foodChar, map, key, hand, snakeSize);
+    //printf("ping2");
 
     // ---------------------- Initialize Variables ----------------------- //
-    
     
     // Create variables for game loop
     int32_t currentDirection='a';   // Store current input
@@ -510,10 +520,58 @@ int32_t startGame(int32_t height, int32_t width){
     // Start Game Loop
     while(running==1){
 
-        running = moveHeadAndCheckQuitA(&head, &currentDirection);
+        // Clear previous board
+        // uncomment for ncurses (delete above clear method)
+        //clear(); 
+        //refresh();
+        // 
+
+        // Create new Head
+        moveHead = createSnakePart();
+        head->forward=moveHead;
+        moveHead->backward=head;
+        moveHead->xpos=head->xpos;
+        moveHead->ypos=head->ypos;
+        
+        // Get input
+        ch = getInput();
+
+        system("clear");    // delete if using ncurses
+
+        // No input entered check
+        if(ch=='a'||ch=='d'||ch=='w'||ch=='s'||ch=='q'){
+            currentDirection = ch;
+        }
+        // uncomment for ncurses and delete above
+        //if(ch!=ERR){
+        //currentDirection = ch;
+        //}
+        
+
+        // Move in inputed direction
+        if(currentDirection=='a'){
+            moveHead->xpos--;
+        }
+        if(currentDirection=='d'){
+            moveHead->xpos++;
+        }
+        if(currentDirection=='w'){
+            moveHead->ypos--;
+        }
+        if(currentDirection=='s'){
+            moveHead->ypos++;
+        }
+        
+        // Quit game if q is pressed
+        if(currentDirection=='q'){
+            running=0;
+        }
+ 
+        // Set the heap of the linked list to the new head we allocated
+        head=moveHead;
 
         // If eating
-        if(deathCheck(head->xpos, head->ypos, height, width, snakeChar, map)==1){
+        if(deathCheckA(head->xpos, head->ypos, height, width, snakeChar, map)==1){
             // We have died
             running = 0;
 
@@ -529,7 +587,7 @@ int32_t startGame(int32_t height, int32_t width){
             // Dont remove tail
             map[head->ypos][head->xpos] = snakeChar;
 
-            placeFood(width, height, foodChar, map, key, hand, snakeSize);
+            placeFoodA(width, height, foodChar, map, key, hand, snakeSize);
         } else {
 
             // Swap old tail and new head in hand (for placing food not on snake)
@@ -553,7 +611,7 @@ int32_t startGame(int32_t height, int32_t width){
         usleep(250000);
 
     }
-
+    
 
     // ---------------------------- Cleanup ----------------------------- //
     
@@ -562,5 +620,7 @@ int32_t startGame(int32_t height, int32_t width){
     // ---------------------------- Return Score ----------------------------- //
 
     return snakeSize * 100;
+
+    */
 
 }
