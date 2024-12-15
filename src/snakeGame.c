@@ -354,6 +354,7 @@ void cleanUp(snakePart **head, char ***map, int32_t height, int32_t **hand, int3
 */
 
 // Assembly
+/*
 void initializeSnake(snakePart **inHead, snakePart **inTail, char snakeChar, int32_t snakeSize, int32_t width, int32_t height, int *key, int *hand, char **map){
     *inHead = createSnakePart();
 
@@ -388,6 +389,7 @@ void initializeSnake(snakePart **inHead, snakePart **inTail, char snakeChar, int
 
     return;
 }
+*/
 
 /*
 // Moved to Assembly    I also had to change currentDirection to take a pointer

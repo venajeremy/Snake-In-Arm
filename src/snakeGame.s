@@ -440,6 +440,121 @@ movementFinish:
     mov x0, x2
     ret
 
+// *********************************************************
+.section .bss
+inHead:    .space 8    // Reserve space for snakePart* inHead
+inTail:    .space 8    // Reserve space for snakePart* inTail
+tmp:       .space 8    // Reserve space for snakePart* tmp
+
+.section .data
+width:     .word 10    // Example width
+height:    .word 10    // Example height
+
+.section .text
+.global initializeSnake
+
+initializeSnake:
+    stp x29, x30, [sp, #-16]!
+    mov x29, sp
+
+    // Arguments: 
+    // x0 -> inHead
+    // x1 -> inTail
+    // w2 -> snakeChar
+    // w3 -> snakeSize
+    // w4 -> width
+    // w5 -> height
+    // x6 -> key
+    // x7 -> hand
+    // x8 -> map
+
+    bl createSnakePart
+    str x0, [x0]
+
+    ldr w9, =width
+    lsr w9, w9, #1
+    str w9, [x0]
+
+    ldr w10, =height
+    lsr w10, w10, #1
+    str w10, [x0, #4]
+
+    str x0, [tmp]
+
+    mov w11, #1
+loop_body:
+    cmp w11, w3
+    b.ge end_body_loop
+
+    bl createSnakePart
+
+    ldr x12, [tmp]
+    str x12, [x0, #12]
+
+    str x0, [x12, #8]
+
+    str x0, [tmp]
+
+    ldr w13, =width
+    lsr w13, w13, #1
+    add w13, w13, w11
+    str w13, [x0]
+
+    ldr w14, =height
+    lsr w14, w14, #1
+    str w14, [x0, #4]
+
+    add w11, w11, #1
+    b loop_body
+
+end_body_loop:
+    bl createSnakePart
+    ldr x15, [tmp]
+    str x15, [x0, #8]
+    str x0, [x15, #12]
+
+    ldr w16, =width
+    lsr w16, w16, #1
+    add w16, w16, w3
+    sub w16, w16, #1
+    str w16, [x0]
+
+    ldr w17, =height
+    lsr w17, w17, #1
+    str w17, [x0, #4]
+
+    ldr x18, [tmp]
+    mov w19, #1
+
+paint_loop:
+    cmp x18, #0
+    b.eq end_paint_loop
+
+    ldr w20, [x18, #4]
+    mul w21, w20, w4
+    ldr w22, [x18]
+    add w21, w21, w22
+    ldr x23, [x8, x21, LSL #3]
+    strb w2, [x23, w22]
+
+    ldr x18, [x18, #12]
+
+    add w19, w19, #1
+    b paint_loop
+
+end_paint_loop:
+    ldp x29, x30, [sp], #16
+    ret
+
+createSnakePart:
+    // Placeholder for function
+    ret
+
+
+
+
+//**********************************************************
+
 
 exit:
     //printStr "Exiting..."
