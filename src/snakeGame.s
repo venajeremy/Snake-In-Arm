@@ -503,6 +503,7 @@ movementFinish:
     mov x0, x2
     ret
 
+
 startGameA:
     // Inputs:
     // x0: int32_t height
