@@ -543,7 +543,7 @@ startGameA:
     ldp x0, x1, [sp], #16
 
 
-    // initializeSnake(snakePart **inHead, snakePart **inTail,  char **map, int32_t *key, int32_t *hand, char snakeChar, int32_t snakeSize, int32_t width, int32_t height)
+    // initializeSnake(snakePart **inHead, snakePart **inTail, char snakeChar, int32_t snakeSize, int32_t width, int32_t height, int *key, int *hand, char **map)
     stp x0, x1, [sp, #-16]!
     stp x2, x3, [sp, #-16]!
     stp x4, x5, [sp, #-16]!
@@ -551,40 +551,27 @@ startGameA:
     stp x8, x9, [sp, #-16]!
     stp x10, x30, [sp, #-16]!
     
-    /*
-    mov x15, x0
-    mov x0, x1
-    mov x1, x15
+    mov x2, x6  // snakeChar
+    mov x3, x5  // snakeSize
+    mov x4, x1  // width
+    mov x5, x0  // height
     
-    ldr x2, =map
-    ldr x2, [x2]
     
-    bl printBoard
-    
-    */
-    mov x15, x5
-    mov x5, x6  // snakeChar
-    mov x6, x15  // snakeSize
-    mov x7, x1  // width
-    mov x8, x0  // height
-    
-    sub sp, sp, #4    // Reserve space on the stack for 9th argument an int32
-    str x8, [sp, #0]   // Store 9th argument at [sp]
 
     ldr x0, =head   //head
     ldr x1, =tail   //tail
     
+    ldr x6, =key
+    ldr x6, [x6]
 
+    ldr x7, =hand
+    ldr x7, [x7]
 
+    ldr x8, =map
+    ldr x8, [x8]
     
-    ldr x3, =key
-    ldr x3, [x3]
-
-    ldr x4, =hand
-    ldr x4, [x4]
-
-    ldr x2, =map
-    ldr x2, [x2]
+    sub sp, sp, #8    // Reserve space on the stack for 9th argument an int32
+    str x8, [sp, #0]   // Store 9th argument at [sp]
 
     bl initializeSnake
     
