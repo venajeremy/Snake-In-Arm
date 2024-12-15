@@ -1,9 +1,7 @@
 //
-// Assembler program to print "Hello World!"
-// to stdout.
+// Snake Game Built with Assembly
 //
-// X0-X2 - parameters to linux function services
-// X8 - linux function number
+// Some Functions Still Included in SnakeGame.c
 //
 
 .global main
@@ -782,15 +780,35 @@ gameLoop:
     ldr x21, [x20, x12, lsl #3]     //map[head->ypos]
     strb w6, [x21, x11]        //map[head->ypos][head->xpos] = snakeChar
 
+
+    
+    ldr x17, =tail
+    ldr x17, [x17]
+    mov x18, #0
+    ldrsw x18, [x17, #4]    // tail->y
+    mov x19, #0
+    ldrsw x19, [x17]
+    mov x17, x19    // tail->x
+
+    ldr x20, =map
+    ldr x20, [x20]
+
     ldr x22, [x20, x18, lsl #3]      //map[tail->ypos]
     mov x29, #32    // ' '
-    str x29, [x22, x17]         //map[tail->ypos][tail->xpos] = ' '
-   
+    strb w29, [x22, x17]         //map[tail->ypos][tail->xpos] = ' '
+
     // tail = tail->forward
     ldr x20, =tail
-    ldr x21, [x20]  // 21: tail
-    str x20, [x21, #8]  // tail = tail->forward
+    ldr x20, [x20]
 
+    ldr x21, [x20, #8]  // 21: tail->forward
+
+    ldr x22, =tail
+    str x21, [x22]  // tail = tail->forward
+
+    
+
+    
     // free(tail->backward)
     stp x0, x1, [sp, #-16]!
     stp x2, x3, [sp, #-16]!
@@ -804,6 +822,8 @@ gameLoop:
 
     bl free
 
+    ldr x0, =tail
+
     ldp x10, x30, [sp], #16
     ldp x8, x9, [sp], #16
     ldp x6, x7, [sp], #16
@@ -811,11 +831,11 @@ gameLoop:
     ldp x2, x3, [sp], #16
     ldp x0, x1, [sp], #16
 
+
     //tail->backward = null
     ldr x20, =tail
     mov x21, #0         // x21: NULL
     str x21, [x20, #16]
-
 
     b gameLoopCont
 

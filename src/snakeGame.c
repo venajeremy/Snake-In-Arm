@@ -270,7 +270,7 @@ int32_t getRand(){
 
 // Assembly
 void placeFood(int32_t boardWidth, int32_t boardHeight, char foodChar, char **graph, int32_t *key, int32_t *hand, int32_t snakeSize){
-
+printf("width: %d, height: %d, foodchar: %c, graph: %c, key: %d, hand: %d, snakeSize: %d\n", boardWidth, boardHeight, foodChar, graph[2][2], key[3], hand[3], snakeSize);
     // Get a valid position to place our food ( -snakeSize are all the positions of the snake )
     int32_t position = getRand() % ((boardWidth * boardHeight)-snakeSize-1);
 
