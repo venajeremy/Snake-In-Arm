@@ -775,8 +775,8 @@ gameLoop:
     stp x8, x9, [sp, #-16]!
     stp x10, x30, [sp, #-16]!
 
-    mov x2, x0
-    mov x3, x1
+    mov x2, x1
+    mov x3, x0
     mov x4, x6
     ldr x5, =map
     ldr x5, [x5]
