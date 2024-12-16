@@ -10,7 +10,7 @@ cd ncurses-6.4
 ./configure --host=aarch64-linux-gnu --prefix=/path/to/cross-toolchain/aarch64-linux-gnu --with-shared --with-termlib --disable-stripping
 
 make
-make install
+sudo make install
 
 Cross compiling with all libraries:
 
