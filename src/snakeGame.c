@@ -148,20 +148,51 @@ void displayLeaderboard() {
 
 }
 
+int32_t displayShop()
+{
+    // Player can buy and equip skin or leave shop
+    int32_t result = -1;
+    char a[20];
+    char zero[20] = "0";
+    char one[20] = "1";
+    char two[20] = "2";
+    char three[20] = "3";
+    char four[20] = "4";
+    char five[20] = "5";
+
+    printf("Welcome to the Skin Shop! \n -----Skin Shop----- \n");
+    printf("Selection:| 1 = # | 2 = $ | 3 = & | 4 = + | 5 = o | 6 = Exit \n");
+    printf("Choice = [ ]\b\b");
+    scanf(" %s", a);
+
+    for (int32_t i = 0; i < 4; i++) { // Clear Text
+        printf("\033[1A\033[2K"); // Move cursor up one line, then clear the line
+    }
+    if (strcmp(a, zero) == 0 || strcmp(a, one) == 0 || strcmp(a, two) == 0 || strcmp(a, three) == 0 || strcmp(a, four) == 0 || strcmp(a, five) == 0) 
+    {
+        result = atoi(a); // Convert Selection to int
+    }
+    
+    return result;
+}
+
 int32_t getInputSize () 
 {
     int32_t result = -1;
     char a[20];
+    char zero[20] = "0";
     char one[20] = "1";
     char two[20] = "2";
-    char zero[20] = "0";
+    char three[20] = "3";
+    
+    
 
     system("clear");
-    printf("-------------------------\n    0: [START]        \n    1: [LEADERBOARD]     \n    2: [EXIT]    \n-------------------------\n");
+    printf("-------------------------\n    0: [START]        \n    1: [LEADERBOARD]     \n    2: [SHOP]    \n    3: [EXIT]    \n-------------------------\n");
     printf("Input = [ ]\b\b");
     scanf(" %s", a);
     //printf("%s", a);
-    if (strcmp(a, zero) == 0 || strcmp(a, one) == 0 || strcmp(a, two) == 0) 
+    if (strcmp(a, zero) == 0 || strcmp(a, one) == 0 || strcmp(a, two) == 0 || strcmp(a, three) == 0) 
     {
         result = atoi(a);
     }
@@ -634,5 +665,3 @@ int32_t startGame(int32_t height, int32_t width){
     return snakeSize * 100;
 
     */
-
-}
