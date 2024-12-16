@@ -33,6 +33,8 @@ next:
     b.eq one
     cmp x0, #2
     b.eq two
+    cmp x0, #3
+    b.eq three
     //printReg 0
     b next
 zero:
@@ -55,8 +57,39 @@ one:
     bl displayLeaderboard
     b next
 two:
+    mov x0, #-1
+    bl displayShop
+    cbz x0, zero
+    cmp x0, #1
+    b.eq skinOne
+    cmp x0, #2
+    b.eq skinTwo
+    cmp x0, #3
+    b.eq skinThree
+    cmp x0, #4
+    b.eq skinFour
+    cmp x0, #5
+    b.eq skinFive
+    b next
+three:
     //printStr "2: \n"
     b exit
+
+skinOne:
+    mov x25, #64 // x10 = #
+    b two
+skinTwo:
+    mov x25, #36 // x10 = $
+    b two
+skinThree:
+    mov x25, #38 // x10 = &
+    b two
+skinFour:
+    mov x25, #43 // x10 = +
+    b two
+skinFive:
+    mov x25, #111 // x10 = o
+    b two
 
 cleanUpA:
     // x1: char ***map
@@ -574,6 +607,7 @@ startGameA:
     // x7: char foodChar
     // x8: int32_t currentDirection
     // x9: char running
+    // x25: Selected Skin
 
 
 
@@ -584,8 +618,8 @@ startGameA:
     mov x5, #3
 
     // snakechar: SET HERE CAN CHANGE:
-    //       V = '#'
-    mov x6, #35
+    //       V = x25 (Default = #)
+    mov x6, x25
 
     // foodchar: SET HERE CAN CHANGE:
     //       V = '@'
@@ -1161,8 +1195,4 @@ hand: .quad 0
 head: .quad 0
 tail: .quad 0
 currentDirection: .word 0
-
     
-
-
-
