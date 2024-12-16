@@ -21,7 +21,7 @@ buildNoCurses:
 	@echo "Assembling..."
 	@$(CC) -c ./src/snakeGame.s -o ./tmp/snakeGameS.o
 	@echo "Linking..."
-	@$(CC) -fPIC ./tmp/*.o -o ./dist/myprogram
+	@$(CC)  ./tmp/*.o -o ./dist/myprogram
 	@echo "Done! Output in /dist/. Run with: make run"
 
 
