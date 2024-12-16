@@ -76,7 +76,7 @@ cleanUpA:
     stp x8, x9, [sp, #-16]!
     stp x10, x30, [sp, #-16]!
 
-    bl endwin
+    //bl endwin uncomment for ncurses
 
     ldp x10, x30, [sp], #16
     ldp x8, x9, [sp], #16
@@ -384,11 +384,11 @@ moveHeadAndCheckQuitA:
     stp x8, x9, [sp, #-16]!
     stp x10, x30, [sp, #-16]!
 
-    bl wipe
+    //bl wipe   uncomment for ncurses
 
-    //ldr x0, =clear
+    ldr x0, =clear  // comment for ncurses
     // clear terminal
-    //bl system;
+    bl system;  // comment for ncurses
     // we only save and load the other registers
     ldp x10, x30, [sp], #16
     ldp x8, x9, [sp], #16
@@ -552,9 +552,9 @@ startGameA:
     stp x0, x1, [sp, #-16]!
     stp x2, x30, [sp, #-16]!
 
-    bl initscr
+    //bl initscr
     mov x0, #0
-    bl timeout
+    //bl timeout uncomment for ncurses
 
     mov x0, #0 // NULL
     bl time
