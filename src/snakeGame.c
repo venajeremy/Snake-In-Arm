@@ -665,3 +665,5 @@ int32_t startGame(int32_t height, int32_t width){
     return snakeSize * 100;
 
     */
+
+}
