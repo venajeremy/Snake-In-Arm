@@ -129,7 +129,6 @@ void displayLeaderboard() {
     }
     fclose(file);
 
-
     // Display the sorted leaderboard
     printf("------ LEADERBOARD ------\n");
     for (int32_t i = 0; i < 5; i++) {
@@ -156,6 +155,8 @@ int32_t getInputSize ()
     char one[20] = "1";
     char two[20] = "2";
     char zero[20] = "0";
+
+    system("clear");
     printf("-------------------------\n    0: [START]        \n    1: [LEADERBOARD]     \n    2: [EXIT]    \n-------------------------\n");
     printf("Input = [ ]\b\b");
     scanf(" %s", a);
@@ -258,7 +259,7 @@ void printBoard(int32_t boardWidth, int32_t boardHeight, char **map){
     for(int32_t i = 0 ; i < boardWidth ; i++){
         printf(" o");
     }
-    printf("\n");
+    printf("\n\r");
     for(int32_t i = 0 ; i < boardHeight ; i++){
         printf("o");
         for(int32_t j = 0 ; j < boardWidth ; j++){
@@ -270,7 +271,7 @@ void printBoard(int32_t boardWidth, int32_t boardHeight, char **map){
     for(int32_t i = 0 ; i < boardWidth ; i++){
         printf(" o");
     }
-    printf("\n");
+    printf("\n\r");
 
 }
 
