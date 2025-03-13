@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/f27bf421-461e-4d4d-9f22-7ebf4d97ac66" />
+</p>
+
 # Snake Game Made in ARM Assembly (Without NCurses - No Live Input)
 
 ## About
