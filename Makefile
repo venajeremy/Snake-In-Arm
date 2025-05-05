@@ -12,7 +12,7 @@ build:
 	@echo "Assembling..."
 	@$(CC) $(CurseFLAGS) -c ./src/snakeGame.s -o ./tmp/snakeGameS.o
 	@echo "Linking..."
-	@$(CC) -lncurses -ltinfo ./tmp/*.o -o ./dist/myprogram
+	@$(CC)  ./tmp/*.o -o ./dist/myprogram -lncurses -ltinfo 
 	@echo "Done! Output in /dist/. Run with: make run"
 
 buildNoCurses:

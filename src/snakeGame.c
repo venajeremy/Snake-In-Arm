@@ -81,6 +81,7 @@ void addLeaderboard(int32_t score) {
 
 
     Player new_player;
+    printf("\033[38;2;%d;%d;%dm%s\033[0m\n", 255, 0, 0, "You lost...");
     printf("Enter player's name: ");
     scanf("%s", new_player.name);
     new_player.score = score;
